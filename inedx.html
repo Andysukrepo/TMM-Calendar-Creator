@@ -1,1 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>TMM Calendar Creator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
 
+<header class="tmm-header">
+    <div class="tmm-logo-title">
+        <div class="tmm-logo-circle">
+            <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+        </div>
+        <div>
+            <h1>TMM Calendar Creator</h1>
+            <p class="subtitle">
+                Create monthly printable & digital calendars
+            </p>
+        </div>
+    </div>
+</header>
+
+<!-- LICENSE BAR -->
+<section id="licenseBar" class="license-bar">
+    <div class="license-bar-inner">
+        <span class="license-label">Have a license key?</span>
+        <span id="licenseStatus" class="license-status hidden">ACTIVE</span>
+        <!-- Value is empty now -->
+        <input id="licenseInput" type="text" placeholder="Enter your license key">
+        <button id="activateLicenseBtn" class="tmm-btn tmm-btn-primary small">Activate</button>
+        <button id="toggleKeyBtn" class="tmm-btn tmm-btn-blue small hidden">Hide Key</button>
+        <span id="licenseMessage" class="license-message"></span>
+    </div>
+</section>
+
+<!-- MAIN APP LAYOUT -->
+<main class="tmm-main">
+    
+    <!-- LEFT COLUMN -->
+    <aside class="tmm-sidebar">
+        
+        <!-- COLUMN 1: Date Selection & Holidays -->
+        <div class="sidebar-col">
+            
+            <!-- HOLIDAYS & OBSERVANCES -->
+            <section class="panel">
+                <h2>Holidays & Observances</h2>
+                
+                <div class="toggle-row" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                    <input id="moonPhasesToggle" type="checkbox" />
+                    <span>Moon phases 
+                        <span class="moon-circle moon-new" style="margin-left:4px;"></span>
+                        <span class="moon-circle moon-first"></span>
+                        <span class="moon-circle moon-last"></span>
+                        <span class="moon-circle moon-full"></span>
+                    </span>
+                </div>
+
+                <div id="holidayListContainer" class="holiday-accordion-wrapper">
+                    <!-- Javascript injects months here -->
+                </div>
+            </section>
+            
+            <!-- DATE SELECTION -->
+            <section class="panel">
+                <h2>Date selection</h2>
+                <div class="two-col">
+                    <label>
+                        Month
+                        <select id="monthSelect"></select>
+                    </label>
+                    <label>
+                        Year
+                        <select id="yearSelect"></select>
+                    </label>
+                </div>
+            </section>
+        </div>
+
+        <!-- COLUMN 2: Typography & Custom Events -->
+        <div class="sidebar-col">
+            
+            <!-- TYPOGRAPHY -->
+            <section class="panel">
+                <h2>Typography</h2>
+                
+                <label>Font style
+                    <select id="fontStyleSelect">
+                        <option value="sans-serif">Sans-serif</option>
+                        <option value="serif">Serif</option>
+                        <option value="display">Display</option>
+                        <option value="handwriting">Handwriting</option>
+                    </select>
+                </label>
+                
+                <label>Quick select font
+                    <select id="quickFontSelect">
+                        <option value="">Choose a popular font...</option>
+                    </select>
+                </label>
+                
+                <div class="font-search-container">
+                    <label>Font family (Google Fonts)</label>
+                    <input id="fontSearchInput" type="text" placeholder="Type to search (e.g. Poppins)" autocomplete="off" />
+                    <div id="fontSearchResults" class="font-results-dropdown hidden"></div>
+                </div>
+
+                <label>Font weight
+                    <select id="fontWeightSelect">
+                        <option value="300">Light</option>
+                        <option value="400" selected>Regular</option>
+                        <option value="600">Semi-bold</option>
+                        <option value="700">Bold</option>
+                    </select>
+                </label>
+                
+                <!-- Main Text Colors -->
+                <div class="two-col">
+                    <div>
+                        <label>Title colour</label>
+                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
+                            Pick Colour
+                            <input id="titleColorInput" type="color" value="#111827" />
+                        </div>
+                    </div>
+                    <div>
+                        <label>Date colour</label>
+                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
+                            Pick Colour
+                            <input id="dateColorInput" type="color" value="#111827" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day/Weekend Colors -->
+                <div class="two-col">
+                    <div>
+                        <label>Weekday Colour</label>
+                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
+                            Pick Colour
+                            <input id="weekdayColorInput" type="color" value="#4b5563" />
+                        </div>
+                    </div>
+                    <div>
+                        <label>Weekend Colour</label>
+                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
+                            Pick Colour
+                            <input id="weekendHeaderColorInput" type="color" value="#b91c1c" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CUSTOM EVENTS -->
+            <section id="customEventsPanel" class="panel">
+                <h2>Custom events</h2>
+                <div class="custom-event-row">
+                    <label>
+                        Date
+                        <input id="customEventDate" type="date" />
+                    </label>
+                    <label>
+                        Label
+                        <input id="customEventLabel" type="text" placeholder="e.g. Sale" />
+                    </label>
+                    <button id="addCustomEventBtn" class="tmm-btn tmm-btn-primary full-width small">Add</button>
+                    <button id="clearCustomEventsBtn" class="tmm-btn tmm-btn-ghost full-width small" style="margin-top: 8px; color: #b91c1c; border-color: #fca5a5;">Clear All</button>
+                </div>
+                <ul id="customEventList" class="event-list"></ul>
+            </section>
+        </div>
+
+        <!-- COLUMN 3: Layout & Export -->
+        <div class="sidebar-col">
+
+            <!-- GRID OPTIONS -->
+            <section class="panel">
+                <h2>Layout & Grid</h2>
+                
+                <label style="margin-bottom: 12px; display:block;">
+                    Calendar Layout
+                    <select id="layoutSelect">
+                        <option value="grid">Standard Monthly Grid</option>
+                        <option value="vertical-a4">Vertical A4 (Full Width)</option>
+                        <option value="vertical-full">Vertical A3 (Full Width)</option>
+                        <option value="vertical-slim">Vertical A3 (Slim/Half)</option>
+                    </select>
+                </label>
+
+                <!-- Vertical Options -->
+                <div id="verticalOptions" class="hidden" style="background: #f9fafb; padding: 10px; border:1px solid #e5e7eb; border-radius: 8px; margin-bottom: 12px;">
+                    <div class="two-col">
+                        <label>Cols
+                            <select id="colCountSelect">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5" selected>5</option>
+                            </select>
+                        </label>
+                        <label>Labels (comma sep.)
+                            <input id="columnNamesInput" type="text" value="Name 1, Name 2, Name 3, Name 4, Name 5" />
+                        </label>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Grid Styling -->
+                <div class="toggle-row" style="margin-bottom: 8px;">
+                    <input id="showGridLinesToggle" type="checkbox" checked />
+                    <span>Show Grid Lines</span>
+                </div>
+
+                <div class="two-col">
+                    <label>Border Weight (px)
+                        <input id="borderWidthInput" type="number" min="0.1" max="10" step="0.5" value="1" />
+                    </label>
+                    <div>
+                        <label>Border Colour</label>
+                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
+                            Pick Colour
+                            <input id="borderColorInput" type="color" value="#e5e7eb" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <label>Week starts on
+                    <select id="startDaySelect">
+                        <option value="1">Monday</option>
+                        <option value="0">Sunday</option>
+                    </select>
+                </label>
+
+                <div id="gridSpecificOptions">
+                    <label>Date position
+                        <select id="datePositionSelect">
+                            <option value="top-left">Top left</option>
+                            <option value="top-right">Top right</option>
+                            <option value="bottom-left">Bottom left</option>
+                            <option value="bottom-right">Bottom right</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="divider"></div>
+                <label>Header style
+                    <select id="headerStyleSelect">
+                        <option value="short">Mon, Tue...</option>
+                        <option value="medium">Mon., Tue...</option>
+                        <option value="long">Monday, Tuesday...</option>
+                    </select>
+                </label>
+            </section>
+
+            <!-- EXPORT OPTIONS -->
+            <section class="panel export-panel">
+                <h2>Export calendar</h2>
+                <label>Page size
+                    <select id="pageSizeSelect">
+                        <option value="a4l" selected>A4 landscape</option>
+                        <option value="a4p">A4 portrait</option>
+                        <option value="a3p">A3 portrait</option>
+                        <option value="a3l">A3 landscape</option>
+                        <option value="a3-full">A3 Full Vertical</option>
+                        <option value="a3-slim">A3 Slimline</option>
+                        <option value="usl">US Letter</option>
+                        <option value="custom">Custom size</option>
+                    </select>
+                </label>
+
+                <div class="two-col" id="customSizeRow" style="display:none;">
+                    <label>Width (px)<input id="customWidthInput" type="number" value="3508" /></label>
+                    <label>Height (px)<input id="customHeightInput" type="number" value="2480" /></label>
+                </div>
+
+                <label>File format
+                    <select id="fileFormatSelect">
+                        <option value="png">PNG</option>
+                        <option value="svg-simple">SVG (simple)</option>
+                        <option value="svg-styled">SVG (styled)</option>
+                    </select>
+                </label>
+                
+                <div class="toggle-row small" style="margin-top:8px;">
+                    <input id="transparentBgToggle" type="checkbox" />
+                    <span>Transparent Background</span>
+                </div>
+                
+                <div class="toggle-row small">
+                    <input id="bleedToggle" type="checkbox" />
+                    <span>Include 3mm bleed</span>
+                </div>
+                
+                <button id="downloadBtn" class="tmm-btn tmm-btn-primary full-width disabled">Download calendar</button>
+                <p id="downloadHint" class="hint tiny">Downloads disabled in DEMO MODE.</p>
+            </section>
+        </div> 
+    </aside>
+
+    <section class="tmm-preview-area">
+        <section class="preview-card">
+            <header class="preview-header">
+                <h2 id="previewTitle">Calendar preview</h2>
+                <p id="previewSubtitle">Adjust settings to update your calendar instantly.</p>
+            </header>
+
+            <div class="calendar-wrapper">
+                <div class="demo-watermark" id="demoWatermark">DEMO</div>
+                <div class="calendar-grid" id="calendarPreview"></div>
+                <footer class="preview-footer">
+                    <div><span class="legend-dot bank"></span> Holiday</div>
+                    <div><span class="legend-dot special"></span> Observance</div>
+                    <div>
+                        <span class="legend-moon-icons">
+                            <span class="moon-circle moon-new"></span>
+                            <span class="moon-circle moon-first"></span>
+                            <span class="moon-circle moon-last"></span>
+                            <span class="moon-circle moon-full"></span>
+                        </span> Moon cycle
+                    </div>
+                </footer>
+            </div>
+        </section>
+    </section>
+
+</main>
+
+<script src="js/app.js"></script>
+</body>
+</html>
