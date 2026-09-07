@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------
-   TMM Calendar Creator – 50/50 Split & Slim Controls Theme
+   TMM Calendar Creator – Aligned Baseline & Balanced Split
    Palette: #2d3e51 | #34495d | #5d6d7d | #85919e | #a9b7b9 | #ffffff
 --------------------------------------------------------- */
 
@@ -122,7 +122,7 @@ body {
     background: var(--brand-darkest);
 }
 
-/* MAIN APP LAYOUT: 50% Controls, 50% Preview */
+/* MAIN APP LAYOUT: Equal Stretch to Align Bottoms */
 .tmm-main {
     display: grid; 
     grid-template-columns: 1fr 1.05fr; 
@@ -130,10 +130,10 @@ body {
     max-width: 1920px; 
     margin: 0 auto; 
     padding: 16px;
-    align-items: start;
+    align-items: stretch; /* Stretches both sides equally */
 }
 
-/* 3-Column Slim Sidebar */
+/* 3-Column Sidebar */
 .tmm-sidebar { 
     display: grid; 
     grid-template-columns: 1fr 1fr 1fr; 
@@ -149,7 +149,7 @@ body {
     min-width: 0; 
 }
 
-/* Slimmer Panels */
+/* Panels */
 .panel {
     background: var(--panel-bg); 
     border: 1px solid var(--panel-border);
@@ -207,7 +207,7 @@ label select:focus, label input:focus {
     margin: 8px 0;
 }
 
-/* MIDDLE LOGO SHOWCASE */
+/* MIDDLE LOGO BADGE */
 .brand-middle-badge {
     display: flex;
     align-items: center;
@@ -403,19 +403,24 @@ label select:focus, label input:focus {
     display: flex; 
     justify-content: center; 
     width: 100%;
+    height: 100%; /* Stretch full available vertical height */
 }
 
 .preview-card {
     width: 100%; 
     background: #ffffff; 
     border-radius: var(--radius-md);
-    padding: 18px 20px; 
+    padding: 16px 18px; 
     border: 1px solid var(--panel-border); 
     box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Match height with controls */
 }
-.preview-header { margin-bottom: 12px; }
+
+.preview-header { margin-bottom: 10px; }
 .preview-header h2 { margin: 0; font-size: 17px; color: var(--brand-darkest); }
-.preview-header p { margin: 2px 0 8px; font-size: 12px; color: var(--brand-medium); }
+.preview-header p { margin: 2px 0 6px; font-size: 12px; color: var(--brand-medium); }
 
 /* 12-MONTH STRIP BAR */
 .month-strip-bar {
@@ -471,17 +476,21 @@ label select:focus, label input:focus {
     background: #ffffff;
 }
 
-/* EXPANDED PREVIEW CANVAS WRAPPER */
+/* EXPANDED PREVIEW CANVAS WRAPPER (Stretches To Bottom) */
 .calendar-wrapper {
     background: #ffffff; 
     border-radius: 8px; 
-    padding: 24px;
+    padding: 20px;
     border: 1px solid var(--panel-border); 
     box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     position: relative; 
-    min-height: 580px; 
+    flex: 1; /* Automatically stretches to fill the bottom baseline */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     overflow: hidden;
 }
+
 .calendar-wrapper.slim-mode { max-width: 55%; margin: 0 auto; }
 
 .demo-watermark {
@@ -502,9 +511,9 @@ label select:focus, label input:focus {
     display: flex; 
     gap: 16px; 
     font-size: 11.5px; 
-    margin-top: 12px; 
+    margin-top: 10px; 
     border-top: 1px solid #edf2f5; 
-    padding-top: 10px; 
+    padding-top: 8px; 
     color: var(--brand-medium);
 }
 .legend-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; margin-right: 4px; }
@@ -513,11 +522,11 @@ label select:focus, label input:focus {
 .legend-moon-icons { display: inline-flex; gap: 3px; align-items: center; margin-right: 4px; }
 
 /* TABLE BASE */
-.calendar-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.calendar-table { width: 100%; border-collapse: collapse; table-layout: fixed; flex: 1; }
 .calendar-table th {
     background: transparent; 
     font-size: 11px; 
-    padding: 8px;
+    padding: 6px;
     text-transform: uppercase; 
     color: var(--brand-medium); 
     font-weight: 700;
@@ -529,7 +538,7 @@ label select:focus, label input:focus {
 }
 
 /* GRID MODE */
-.calendar-table:not(.vertical-mode) td { height: 84px; }
+.calendar-table:not(.vertical-mode) td { height: auto; min-height: 80px; }
 
 .date-number { position: absolute; font-size: 12.5px; font-weight: 600; color: var(--brand-darkest); }
 .moon-icon { position: absolute; font-size: 14px; color: var(--brand-darkest); }
@@ -557,7 +566,7 @@ label select:focus, label input:focus {
 
 /* VERTICAL MODE */
 .calendar-table.vertical-mode { table-layout: auto; }
-.calendar-table.vertical-mode td { height: 42px; padding: 6px 8px; vertical-align: middle; }
+.calendar-table.vertical-mode td { height: 38px; padding: 4px 6px; vertical-align: middle; }
 .calendar-table.vertical-mode th:first-child,
 .calendar-table.vertical-mode td:first-child { width: 1%; white-space: nowrap; }
 
@@ -567,35 +576,35 @@ label select:focus, label input:focus {
     justify-content: space-between;
     align-items: flex-start;
     height: 100%;
-    min-height: 28px;
+    min-height: 26px;
 }
 
 .v-top-row {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
     justify-content: flex-start;
 }
 
 .v-day-name {
-    font-size: 11px;
+    font-size: 10.5px;
     text-transform: uppercase;
     font-weight: 600;
 }
 
 .v-day-num {
     font-weight: 700;
-    font-size: 13.5px;
+    font-size: 13px;
     color: var(--brand-darkest);
 }
 
 .v-bottom-row {
     display: flex;
-    gap: 5px;
+    gap: 4px;
     align-items: center;
-    font-size: 9.5px;
+    font-size: 9px;
     flex-wrap: wrap;
-    margin-top: 3px;
+    margin-top: 2px;
 }
 
 /* Moon Phase Circles */
@@ -658,8 +667,8 @@ label select:focus, label input:focus {
 }
 
 /* Binding Offsets */
-.calendar-wrapper.binding-top { padding-top: 48px !important; }
-.calendar-wrapper.binding-left { padding-left: 48px !important; }
+.calendar-wrapper.binding-top { padding-top: 46px !important; }
+.calendar-wrapper.binding-left { padding-left: 46px !important; }
 
 /* Punch Hole Guides */
 .punch-guide-container {
@@ -709,8 +718,6 @@ label select:focus, label input:focus {
   display: flex !important;
   flex-direction: column !important;
   justify-content: flex-start !important;
-  min-height: 700px !important;
-  padding: 20px !important;
 }
 
 /* 1/2 Page Artwork Zone */
@@ -724,7 +731,7 @@ label select:focus, label input:focus {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   position: relative;
 }
 
@@ -739,7 +746,7 @@ label select:focus, label input:focus {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   position: relative;
 }
 
