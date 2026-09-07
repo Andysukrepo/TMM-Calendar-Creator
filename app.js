@@ -271,6 +271,7 @@ function setupControls() {
     });
   }
 
+  // Custom Events Add & Clear
   if ($("addCustomEventBtn")) {
     $("addCustomEventBtn").addEventListener("click", () => {
       const d = $("customEventDate").value;
@@ -284,6 +285,48 @@ function setupControls() {
   if ($("clearCustomEventsBtn")) {
     $("clearCustomEventsBtn").addEventListener("click", () => {
         state.customEvents = []; renderCustomEventsList(); renderCalendar();
+    });
+  }
+
+  // Bulk CSV Upload
+  const csvInput = $("csvFileInput");
+  const uploadCsvBtn = $("uploadCsvBtn");
+
+  if (uploadCsvBtn && csvInput) {
+    uploadCsvBtn.addEventListener("click", () => csvInput.click());
+
+    csvInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const text = evt.target.result;
+        const lines = text.split(/\r?\n/);
+        let addedCount = 0;
+
+        lines.forEach(line => {
+          const trimmed = line.trim();
+          if (!trimmed) return;
+          const parts = trimmed.split(",").map(p => p.trim());
+          if (parts.length >= 2) {
+            const dateStr = parts[0];
+            const labelStr = parts.slice(1).join(",").replace(/^["']|["']$/g, '');
+
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr) && labelStr) {
+              state.customEvents.push({ date: dateStr, label: labelStr });
+              addedCount++;
+            }
+          }
+        });
+
+        csvInput.value = "";
+        renderCustomEventsList();
+        renderCalendar();
+        alert(`Successfully imported ${addedCount} event(s)!`);
+      };
+
+      reader.readAsText(file);
     });
   }
 
