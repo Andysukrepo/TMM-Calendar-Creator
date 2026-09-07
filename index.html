@@ -214,7 +214,7 @@
 
                 <!-- WALL CALENDAR ARTWORK CONTROLS -->
                 <div id="splitArtOptions" class="hidden" style="background: #f9fafb; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 14px;">
-                    <label style="font-weight: 600; margin-bottom: 6px; display: block;">Artwork / Image for <span id="currentArtMonthName">This Month</span></label>
+                    <label style="font-weight: 600; margin-bottom: 6px; display: block;">Artwork for <span id="currentArtMonthName">This Month</span></label>
                     
                     <input type="file" id="artImageInput" accept="image/png, image/jpeg, image/webp" style="display: none;" />
                     
@@ -380,8 +380,12 @@
     <section class="tmm-preview-area">
         <section class="preview-card">
             <header class="preview-header">
-                <h2 id="previewTitle">Calendar preview</h2>
-                <p id="previewSubtitle">Adjust settings to update your calendar instantly.</p>
+                <div>
+                    <h2 id="previewTitle">Calendar preview</h2>
+                    <p id="previewSubtitle">Click any month below to view, upload artwork, and edit.</p>
+                </div>
+                <!-- 12-MONTH QUICK STRIP TABS -->
+                <div id="monthStripBar" class="month-strip-bar"></div>
             </header>
 
             <div class="calendar-wrapper">
