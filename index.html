@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -283,12 +284,20 @@
                 </div>
 
                 <label>File format
-                    <select id="fileFormatSelect">
-                        <option value="png">PNG</option>
-                        <option value="svg-simple">SVG (simple)</option>
-                        <option value="svg-styled">SVG (styled)</option>
-                    </select>
-                </label>
+    <select id="fileFormatSelect">
+        <option value="png">PNG</option>
+        <option value="pdf" selected>PDF</option>
+        <option value="svg-simple">SVG (simple)</option>
+        <option value="svg-styled">SVG (styled)</option>
+    </select>
+</label>
+
+<label id="exportRangeRow">Export range
+    <select id="exportRangeSelect">
+        <option value="single" selected>Current Month Only</option>
+        <option value="full-year">Full Year (12 Months Batch)</option>
+    </select>
+</label>
                 
                 <div class="toggle-row small" style="margin-top:8px;">
                     <input id="transparentBgToggle" type="checkbox" />
