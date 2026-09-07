@@ -288,7 +288,7 @@ function setupControls() {
     });
   }
 
-  // Bulk CSV Upload
+// Bulk CSV Upload (Supports YYYY-MM-DD and DD/MM/YYYY)
   const csvInput = $("csvFileInput");
   const uploadCsvBtn = $("uploadCsvBtn");
 
@@ -308,15 +308,33 @@ function setupControls() {
         lines.forEach(line => {
           const trimmed = line.trim();
           if (!trimmed) return;
-          const parts = trimmed.split(",").map(p => p.trim());
-          if (parts.length >= 2) {
-            const dateStr = parts[0];
-            const labelStr = parts.slice(1).join(",").replace(/^["']|["']$/g, '');
 
-            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr) && labelStr) {
-              state.customEvents.push({ date: dateStr, label: labelStr });
-              addedCount++;
-            }
+          // Split by comma
+          const parts = trimmed.split(",").map(p => p.trim());
+          if (parts.length < 2) return;
+
+          let rawDate = parts[0].replace(/^["']|["']$/g, '');
+          const labelStr = parts.slice(1).join(",").replace(/^["']|["']$/g, '');
+
+          // Skip header rows like "Date, Title"
+          if (rawDate.toLowerCase().includes("date")) return;
+
+          let isoDate = null;
+
+          // Check if YYYY-MM-DD or YYYY/MM/DD
+          if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test(rawDate)) {
+            const [y, m, d] = rawDate.split(/[-/]/);
+            isoDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          }
+          // Check if DD/MM/YYYY or DD-MM-YYYY (UK standard)
+          else if (/^\d{1,2}[-/]\d{1,2}[-/]\d{4}$/.test(rawDate)) {
+            const [d, m, y] = rawDate.split(/[-/]/);
+            isoDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          }
+
+          if (isoDate && labelStr) {
+            state.customEvents.push({ date: isoDate, label: labelStr });
+            addedCount++;
           }
         });
 
@@ -329,7 +347,6 @@ function setupControls() {
       reader.readAsText(file);
     });
   }
-
   setupFontSearch();
   
   // Colors
