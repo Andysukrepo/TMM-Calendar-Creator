@@ -383,7 +383,7 @@ label select, label input[type="text"], label input[type="date"], label input[ty
     .tmm-sidebar { grid-template-columns: 1fr; }
 }
 
-/* Week Start Toggle Styles */
+/* Toggle Buttons (Alignment & Day Starts) */
 .setting-row {
   margin-top: 12px;
   display: flex;
