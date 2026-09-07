@@ -288,7 +288,7 @@ function setupControls() {
     });
   }
 
-// Bulk CSV Upload (Supports YYYY-MM-DD and DD/MM/YYYY)
+  // Robust CSV / TXT File Parser
   const csvInput = $("csvFileInput");
   const uploadCsvBtn = $("uploadCsvBtn");
 
@@ -304,49 +304,74 @@ function setupControls() {
         const text = evt.target.result;
         const lines = text.split(/\r?\n/);
         let addedCount = 0;
+        let skippedLines = [];
 
-        lines.forEach(line => {
-          const trimmed = line.trim();
-          if (!trimmed) return;
+        lines.forEach((rawLine, idx) => {
+          const line = rawLine.trim();
+          if (!line) return;
 
-          // Split by comma
-          const parts = trimmed.split(",").map(p => p.trim());
-          if (parts.length < 2) return;
+          // Auto-detect delimiter (comma, semicolon, or tab)
+          let delim = ",";
+          if (line.includes(";")) delim = ";";
+          else if (line.includes("\t")) delim = "\t";
 
-          let rawDate = parts[0].replace(/^["']|["']$/g, '');
-          const labelStr = parts.slice(1).join(",").replace(/^["']|["']$/g, '');
-
-          // Skip header rows like "Date, Title"
-          if (rawDate.toLowerCase().includes("date")) return;
-
-          let isoDate = null;
-
-          // Check if YYYY-MM-DD or YYYY/MM/DD
-          if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test(rawDate)) {
-            const [y, m, d] = rawDate.split(/[-/]/);
-            isoDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const parts = line.split(delim).map(p => p.trim().replace(/^["']|["']$/g, ''));
+          if (parts.length < 2) {
+            skippedLines.push(`Line ${idx + 1}: Not enough columns`);
+            return;
           }
-          // Check if DD/MM/YYYY or DD-MM-YYYY (UK standard)
-          else if (/^\d{1,2}[-/]\d{1,2}[-/]\d{4}$/.test(rawDate)) {
-            const [d, m, y] = rawDate.split(/[-/]/);
-            isoDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+          // Identify which part is the date
+          let isoDate = null;
+          let labelStr = "";
+
+          for (let i = 0; i < parts.length; i++) {
+            const token = parts[i];
+            
+            // YYYY-MM-DD or YYYY/MM/DD
+            const isoMatch = token.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+            if (isoMatch) {
+              isoDate = `${isoMatch[1]}-${String(isoMatch[2]).padStart(2, '0')}-${String(isoMatch[3]).padStart(2, '0')}`;
+              // The label is whatever parts remain
+              labelStr = parts.filter((_, pIdx) => pIdx !== i).join(" ");
+              break;
+            }
+
+            // DD/MM/YYYY or DD-MM-YYYY (UK format)
+            const ukMatch = token.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+            if (ukMatch) {
+              isoDate = `${ukMatch[3]}-${String(ukMatch[2]).padStart(2, '0')}-${String(ukMatch[1]).padStart(2, '0')}`;
+              labelStr = parts.filter((_, pIdx) => pIdx !== i).join(" ");
+              break;
+            }
           }
 
           if (isoDate && labelStr) {
             state.customEvents.push({ date: isoDate, label: labelStr });
             addedCount++;
+          } else {
+            // Ignore headers like "Date, Event"
+            if (!line.toLowerCase().includes("date")) {
+              skippedLines.push(`Line ${idx + 1}: "${line}"`);
+            }
           }
         });
 
         csvInput.value = "";
         renderCustomEventsList();
         renderCalendar();
-        alert(`Successfully imported ${addedCount} event(s)!`);
+
+        if (addedCount > 0) {
+          alert(`Successfully imported ${addedCount} event(s)!`);
+        } else {
+          alert(`No valid events found. Example expected:\n2026-04-24, Birthday\nor\n24/04/2026, Birthday\n\nFirst skipped line:\n${skippedLines[0] || 'Unknown error'}`);
+        }
       };
 
       reader.readAsText(file);
     });
   }
+
   setupFontSearch();
   
   // Colors
