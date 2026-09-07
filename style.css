@@ -88,7 +88,15 @@ body {
     display: grid; grid-template-columns: 900px 1fr; gap: 24px; max-width: 1900px; margin: 0 auto; padding: 24px;
 }
 .tmm-sidebar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; align-items: stretch; }
-.sidebar-col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+/* Evenly distribute vertical panels so Column 2 and 3 align with Column 1 bottom */
+.sidebar-col { 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    gap: 20px; 
+    min-width: 0; 
+}
 
 .panel {
     background: var(--panel-bg); border: 1px solid var(--panel-border);
