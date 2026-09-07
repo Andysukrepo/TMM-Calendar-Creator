@@ -92,6 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderHolidayControls();
   setupControls();
+  renderMonthStrip();
   renderCalendar();
   updateModeUI();
   checkSavedLicense();
@@ -174,6 +175,39 @@ function updateArtDimensionHint() {
   }
 }
 
+function renderMonthStrip() {
+  const bar = $("monthStripBar");
+  if (!bar) return;
+  bar.innerHTML = "";
+
+  const shortNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  shortNames.forEach((name, idx) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "strip-btn" + (idx === state.month ? " active" : "") + (state.monthlyImages[idx] ? " has-art" : "");
+    btn.title = `Switch to ${name}`;
+
+    const textSpan = document.createElement("span");
+    textSpan.textContent = name;
+    btn.appendChild(textSpan);
+
+    const dotSpan = document.createElement("span");
+    dotSpan.className = "strip-dot";
+    btn.appendChild(dotSpan);
+
+    btn.addEventListener("click", () => {
+      state.month = idx;
+      if ($("monthSelect")) $("monthSelect").value = idx;
+      updateArtLabel();
+      renderMonthStrip();
+      renderCalendar();
+    });
+
+    bar.appendChild(btn);
+  });
+}
+
 function setupControls() {
   const monthSelect = $("monthSelect");
   const yearSelect = $("yearSelect");
@@ -189,6 +223,7 @@ function setupControls() {
     monthSelect.addEventListener("change", e => { 
         state.month = parseInt(e.target.value); 
         updateArtLabel();
+        renderMonthStrip();
         const accords = document.querySelectorAll("#holidayListContainer details");
         accords.forEach((acc) => {
             const sum = acc.querySelector("summary");
@@ -277,6 +312,7 @@ function setupControls() {
         } else {
           state.monthlyImages[state.month] = dataUrl;
         }
+        renderMonthStrip();
         renderCalendar();
       };
       reader.readAsDataURL(file);
@@ -291,6 +327,7 @@ function setupControls() {
         state.monthlyImages[state.month] = null;
       }
       if ($("artImageInput")) $("artImageInput").value = "";
+      renderMonthStrip();
       renderCalendar();
     });
   }
@@ -303,6 +340,7 @@ function setupControls() {
         state.monthlyImages = Array(12).fill(currentImg);
       }
       updateArtLabel();
+      renderMonthStrip();
       renderCalendar();
     });
   }
@@ -1094,6 +1132,7 @@ async function exportBatchPDF() {
       state.month = m;
       if ($("monthSelect")) $("monthSelect").value = m;
       updateArtLabel();
+      renderMonthStrip();
       renderCalendar();
 
       await new Promise(resolve => setTimeout(resolve, 200));
@@ -1114,6 +1153,7 @@ async function exportBatchPDF() {
     state.month = originalMonth;
     if ($("monthSelect")) $("monthSelect").value = originalMonth;
     updateArtLabel();
+    renderMonthStrip();
     renderCalendar();
     if (downloadBtn) {
       downloadBtn.disabled = false;
