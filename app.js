@@ -218,7 +218,24 @@ function setupControls() {
   $("showGridLinesToggle").addEventListener("change", e => { state.showGridLines = e.target.checked; renderCalendar(); });
   $("moonPhasesToggle").addEventListener("change", e => { state.moonPhasesOn = e.target.checked; renderCalendar(); });
 
-  $("startDaySelect").addEventListener("change", e => { state.startMonday = e.target.value === "1"; renderCalendar(); });
+  const btnMon = $("btnStartMon");
+  const btnSun = $("btnStartSun");
+
+  if (btnMon && btnSun) {
+    btnMon.addEventListener("click", () => {
+      state.startMonday = true;
+      btnMon.classList.add("active");
+      btnSun.classList.remove("active");
+      renderCalendar();
+    });
+
+    btnSun.addEventListener("click", () => {
+      state.startMonday = false;
+      btnSun.classList.add("active");
+      btnMon.classList.remove("active");
+      renderCalendar();
+    });
+  }
   $("datePositionSelect").addEventListener("change", e => { state.datePosition = e.target.value; renderCalendar(); });
   $("headerStyleSelect").addEventListener("change", e => { state.headerStyle = e.target.value; renderCalendar(); });
 
