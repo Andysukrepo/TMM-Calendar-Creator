@@ -49,6 +49,7 @@ const state = {
   borderWidth: 1,
   borderColor: "#e5e7eb",
   showGridLines: true, 
+  showWeekNumbers: false,
   transparentBg: false,
   
   // Font Colors
@@ -232,6 +233,14 @@ function setupControls() {
   if ($("showGridLinesToggle")) $("showGridLinesToggle").addEventListener("change", e => { state.showGridLines = e.target.checked; renderCalendar(); });
   if ($("moonPhasesToggle")) $("moonPhasesToggle").addEventListener("change", e => { state.moonPhasesOn = e.target.checked; renderCalendar(); });
 
+  const weekNumTog = $("showWeekNumbersToggle");
+  if (weekNumTog) {
+    weekNumTog.addEventListener("change", e => {
+      state.showWeekNumbers = e.target.checked;
+      renderCalendar();
+    });
+  }
+
   const btnMon = $("btnStartMon");
   const btnSun = $("btnStartSun");
 
@@ -288,7 +297,7 @@ function setupControls() {
     });
   }
 
-  // Robust CSV / TXT File Parser
+  // Bulk CSV Upload
   const csvInput = $("csvFileInput");
   const uploadCsvBtn = $("uploadCsvBtn");
 
@@ -304,40 +313,30 @@ function setupControls() {
         const text = evt.target.result;
         const lines = text.split(/\r?\n/);
         let addedCount = 0;
-        let skippedLines = [];
 
-        lines.forEach((rawLine, idx) => {
+        lines.forEach(rawLine => {
           const line = rawLine.trim();
           if (!line) return;
 
-          // Auto-detect delimiter (comma, semicolon, or tab)
           let delim = ",";
           if (line.includes(";")) delim = ";";
           else if (line.includes("\t")) delim = "\t";
 
           const parts = line.split(delim).map(p => p.trim().replace(/^["']|["']$/g, ''));
-          if (parts.length < 2) {
-            skippedLines.push(`Line ${idx + 1}: Not enough columns`);
-            return;
-          }
+          if (parts.length < 2) return;
 
-          // Identify which part is the date
           let isoDate = null;
           let labelStr = "";
 
           for (let i = 0; i < parts.length; i++) {
             const token = parts[i];
-            
-            // YYYY-MM-DD or YYYY/MM/DD
             const isoMatch = token.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
             if (isoMatch) {
               isoDate = `${isoMatch[1]}-${String(isoMatch[2]).padStart(2, '0')}-${String(isoMatch[3]).padStart(2, '0')}`;
-              // The label is whatever parts remain
               labelStr = parts.filter((_, pIdx) => pIdx !== i).join(" ");
               break;
             }
 
-            // DD/MM/YYYY or DD-MM-YYYY (UK format)
             const ukMatch = token.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
             if (ukMatch) {
               isoDate = `${ukMatch[3]}-${String(ukMatch[2]).padStart(2, '0')}-${String(ukMatch[1]).padStart(2, '0')}`;
@@ -349,23 +348,13 @@ function setupControls() {
           if (isoDate && labelStr) {
             state.customEvents.push({ date: isoDate, label: labelStr });
             addedCount++;
-          } else {
-            // Ignore headers like "Date, Event"
-            if (!line.toLowerCase().includes("date")) {
-              skippedLines.push(`Line ${idx + 1}: "${line}"`);
-            }
           }
         });
 
         csvInput.value = "";
         renderCustomEventsList();
         renderCalendar();
-
-        if (addedCount > 0) {
-          alert(`Successfully imported ${addedCount} event(s)!`);
-        } else {
-          alert(`No valid events found. Example expected:\n2026-04-24, Birthday\nor\n24/04/2026, Birthday\n\nFirst skipped line:\n${skippedLines[0] || 'Unknown error'}`);
-        }
+        alert(`Successfully imported ${addedCount} event(s)!`);
       };
 
       reader.readAsText(file);
@@ -439,6 +428,14 @@ function setupControls() {
   }
 }
 
+function getISOWeekNumber(d) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+}
+
 function renderCalendar() {
     const container = $("calendarPreview");
     if(!container) return;
@@ -502,6 +499,15 @@ function renderGrid(container) {
     const thead = document.createElement("thead");
     if(state.showHeaders) {
         const tr = document.createElement("tr");
+        
+        if (state.showWeekNumbers) {
+            const thWk = document.createElement("th");
+            thWk.className = "th-week-num";
+            thWk.textContent = "Wk";
+            thWk.style.border = borderStyle;
+            tr.appendChild(thWk);
+        }
+
         const headers = getDayHeaders();
         const weekendIndices = state.startMonday ? [5,6] : [0,6];
 
@@ -534,6 +540,21 @@ function renderGrid(container) {
 
     for(let i=0; i<totalCells/7; i++) {
         const tr = document.createElement("tr");
+
+        if (state.showWeekNumbers) {
+            const tdWk = document.createElement("td");
+            tdWk.className = "td-week-num";
+            tdWk.style.border = borderStyle;
+
+            let sampleDay = day;
+            if (i === 0 && startIndex > 0) sampleDay = 1;
+            if (sampleDay <= lastDay.getDate()) {
+                const rowDate = new Date(state.year, state.month, sampleDay);
+                tdWk.textContent = `W${String(getISOWeekNumber(rowDate)).padStart(2, '0')}`;
+            }
+            tr.appendChild(tdWk);
+        }
+
         for(let j=0; j<7; j++) {
             const td = document.createElement("td");
             td.style.border = borderStyle; 
