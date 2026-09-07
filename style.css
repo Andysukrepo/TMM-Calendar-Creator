@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------
-   TMM Calendar Creator – Aligned Baseline & Balanced Split
+   TMM Calendar Creator – Fixed Grid & Proportional Layout
    Palette: #2d3e51 | #34495d | #5d6d7d | #85919e | #a9b7b9 | #ffffff
 --------------------------------------------------------- */
 
@@ -122,15 +122,15 @@ body {
     background: var(--brand-darkest);
 }
 
-/* MAIN APP LAYOUT: Equal Stretch to Align Bottoms */
+/* MAIN APP LAYOUT (Sidebar controls on left, Preview on right) */
 .tmm-main {
     display: grid; 
-    grid-template-columns: 1fr 1.05fr; 
+    grid-template-columns: 860px 1fr; 
     gap: 20px; 
     max-width: 1920px; 
     margin: 0 auto; 
     padding: 16px;
-    align-items: stretch; /* Stretches both sides equally */
+    align-items: start;
 }
 
 /* 3-Column Sidebar */
@@ -138,13 +138,11 @@ body {
     display: grid; 
     grid-template-columns: 1fr 1fr 1fr; 
     gap: 12px; 
-    align-items: stretch; 
 }
 
 .sidebar-col { 
     display: flex; 
     flex-direction: column; 
-    justify-content: space-between; 
     gap: 12px; 
     min-width: 0; 
 }
@@ -169,7 +167,7 @@ body {
     padding-bottom: 4px;
 }
 
-/* Compact Forms & Inputs */
+/* Form Controls */
 label { 
     font-size: 11.5px; 
     color: var(--brand-dark); 
@@ -214,29 +212,20 @@ label select:focus, label input:focus {
     justify-content: center;
     background: #ffffff;
     border: 1px solid var(--panel-border);
-    padding: 8px;
-    flex-grow: 1;
-    min-height: 90px;
+    padding: 10px;
 }
 
 .brand-center-circle {
-    width: 80px;
-    height: 80px;
+    width: 76px;
+    height: 76px;
     border-radius: 50%;
-    border: 2.5px solid var(--brand-light);
+    border: 2px solid var(--brand-light);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     background: #ffffff;
-    box-shadow: 0 4px 14px rgba(45, 62, 81, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.brand-center-circle:hover {
-    transform: scale(1.04);
-    box-shadow: 0 8px 18px rgba(45, 62, 81, 0.16);
-    border-color: var(--brand-medium);
+    box-shadow: 0 4px 12px rgba(45, 62, 81, 0.08);
 }
 
 .brand-center-circle img {
@@ -398,29 +387,25 @@ label select:focus, label input:focus {
     margin: 0;
 }
 
-/* PREVIEW CARD & EXPANDED PREVIEW AREA */
+/* PREVIEW CARD & CANVAS */
 .tmm-preview-area { 
     display: flex; 
     justify-content: center; 
     width: 100%;
-    height: 100%; /* Stretch full available vertical height */
 }
 
 .preview-card {
     width: 100%; 
     background: #ffffff; 
     border-radius: var(--radius-md);
-    padding: 16px 18px; 
+    padding: 18px 20px; 
     border: 1px solid var(--panel-border); 
     box-shadow: var(--shadow-soft);
-    display: flex;
-    flex-direction: column;
-    height: 100%; /* Match height with controls */
 }
 
-.preview-header { margin-bottom: 10px; }
+.preview-header { margin-bottom: 14px; }
 .preview-header h2 { margin: 0; font-size: 17px; color: var(--brand-darkest); }
-.preview-header p { margin: 2px 0 6px; font-size: 12px; color: var(--brand-medium); }
+.preview-header p { margin: 2px 0 8px; font-size: 12px; color: var(--brand-medium); }
 
 /* 12-MONTH STRIP BAR */
 .month-strip-bar {
@@ -476,18 +461,15 @@ label select:focus, label input:focus {
     background: #ffffff;
 }
 
-/* EXPANDED PREVIEW CANVAS WRAPPER (Stretches To Bottom) */
+/* CALENDAR WRAPPER (Paper Simulation) */
 .calendar-wrapper {
     background: #ffffff; 
     border-radius: 8px; 
-    padding: 20px;
+    padding: 24px;
     border: 1px solid var(--panel-border); 
     box-shadow: 0 4px 10px rgba(0,0,0,0.03);
     position: relative; 
-    flex: 1; /* Automatically stretches to fill the bottom baseline */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    min-height: 520px; 
     overflow: hidden;
 }
 
@@ -511,9 +493,9 @@ label select:focus, label input:focus {
     display: flex; 
     gap: 16px; 
     font-size: 11.5px; 
-    margin-top: 10px; 
+    margin-top: 14px; 
     border-top: 1px solid #edf2f5; 
-    padding-top: 8px; 
+    padding-top: 10px; 
     color: var(--brand-medium);
 }
 .legend-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; margin-right: 4px; }
@@ -521,43 +503,67 @@ label select:focus, label input:focus {
 .legend-dot.special { background: var(--brand-medium); }
 .legend-moon-icons { display: inline-flex; gap: 3px; align-items: center; margin-right: 4px; }
 
-/* TABLE BASE */
-.calendar-table { width: 100%; border-collapse: collapse; table-layout: fixed; flex: 1; }
+/* TABLE BASE: Restores Table Display */
+.calendar-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    table-layout: fixed; 
+    display: table;
+}
+
+.calendar-table thead { display: table-header-group; }
+.calendar-table tbody { display: table-row-group; }
+.calendar-table tr { display: table-row; }
+
 .calendar-table th {
     background: transparent; 
     font-size: 11px; 
-    padding: 6px;
+    padding: 8px 4px;
     text-transform: uppercase; 
     color: var(--brand-medium); 
     font-weight: 700;
+    text-align: center;
+    display: table-cell;
 }
+
 .calendar-table td {
     vertical-align: top; 
     position: relative; 
     padding: 4px;
+    display: table-cell;
 }
 
-/* GRID MODE */
-.calendar-table:not(.vertical-mode) td { height: auto; min-height: 80px; }
+/* FIXED CELL HEIGHT FOR GRID (Prevents Numbers Overlapping) */
+.calendar-table:not(.vertical-mode) td { 
+    height: 75px; 
+    min-height: 75px; 
+}
 
-.date-number { position: absolute; font-size: 12.5px; font-weight: 600; color: var(--brand-darkest); }
-.moon-icon { position: absolute; font-size: 14px; color: var(--brand-darkest); }
-.cell-events { position: absolute; font-size: 10px; display: flex; flex-direction: column; gap: 2px; }
+/* DATE NUMBER & CELL CONTENTS */
+.date-number { 
+    position: absolute; 
+    font-size: 12px; 
+    font-weight: 600; 
+    color: var(--brand-darkest); 
+}
+
+.moon-icon { position: absolute; font-size: 13px; color: var(--brand-darkest); }
+.cell-events { position: absolute; font-size: 9.5px; display: flex; flex-direction: column; gap: 2px; }
 
 .pos-top-left .date-number { top: 4px; left: 4px; }
-.pos-top-left .moon-icon { top: 4px; left: 24px; }
+.pos-top-left .moon-icon { top: 4px; left: 22px; }
 .pos-top-left .cell-events { bottom: 4px; left: 4px; align-items: flex-start; text-align: left; }
 
 .pos-top-right .date-number { top: 4px; right: 4px; }
-.pos-top-right .moon-icon { top: 4px; right: 24px; }
+.pos-top-right .moon-icon { top: 4px; right: 22px; }
 .pos-top-right .cell-events { bottom: 4px; right: 4px; align-items: flex-end; text-align: right; }
 
 .pos-bottom-left .date-number { bottom: 4px; left: 4px; }
-.pos-bottom-left .moon-icon { bottom: 4px; left: 24px; }
+.pos-bottom-left .moon-icon { bottom: 4px; left: 22px; }
 .pos-bottom-left .cell-events { top: 4px; left: 4px; align-items: flex-start; text-align: left; }
 
 .pos-bottom-right .date-number { bottom: 4px; right: 4px; }
-.pos-bottom-right .moon-icon { bottom: 4px; right: 24px; }
+.pos-bottom-right .moon-icon { bottom: 4px; right: 22px; }
 .pos-bottom-right .cell-events { top: 4px; right: 4px; align-items: flex-end; text-align: right; }
 
 .event-bank { color: #b91c1c; }
