@@ -38,6 +38,7 @@ const state = {
   month: new Date().getMonth(),
   year: new Date().getFullYear(),
   layout: "grid", 
+  artRatio: "none", // Options: "none", "one-third", "half"
   columnNames: ["Name 1", "Name 2", "Name 3", "Name 4", "Name 5"],
   colCount: 5,
   startMonday: true,
@@ -160,18 +161,15 @@ function updateArtDimensionHint() {
   const hintEl = $("artDimHint");
   if (!hintEl) return;
 
-  switch (state.pageSize) {
-    case 'a3p':
-    case 'a3-full':
-      hintEl.textContent = '3508 × 2480 px';
-      break;
-    case 'usl':
-      hintEl.textContent = '2550 × 1650 px';
-      break;
-    case 'a4p':
-    default:
-      hintEl.textContent = '2480 × 1754 px';
-      break;
+  const isOneThird = state.artRatio === "one-third";
+
+  if (state.pageSize.startsWith('a3')) {
+    hintEl.textContent = isOneThird ? '3508 × 1654 px' : '3508 × 2480 px';
+  } else if (state.pageSize.startsWith('us')) {
+    hintEl.textContent = isOneThird ? '2550 × 1100 px' : '2550 × 1650 px';
+  } else {
+    // A4 Default
+    hintEl.textContent = isOneThird ? '2480 × 1169 px' : '2480 × 1754 px';
   }
 }
 
@@ -244,32 +242,20 @@ function setupControls() {
     yearSelect.addEventListener("change", e => { state.year = parseInt(e.target.value); renderCalendar(); });
   }
 
+  // Layout Selector
   if ($("layoutSelect")) {
     $("layoutSelect").addEventListener("change", e => {
       state.layout = e.target.value;
       const vOpt = $("verticalOptions");
       const gridPos = $("gridSpecificOptions");
-      const splitArt = $("splitArtOptions");
       const wrap = document.querySelector(".calendar-wrapper");
       const pageSel = $("pageSizeSelect");
 
       if (vOpt) vOpt.classList.add("hidden");
       if (gridPos) gridPos.classList.add("hidden");
-      if (splitArt) splitArt.classList.add("hidden");
-      if (wrap) {
-        wrap.classList.remove("slim-mode");
-        wrap.classList.remove("split-mode");
-      }
+      if (wrap) wrap.classList.remove("slim-mode");
 
-      if (state.layout === 'wall-split') {
-        if (splitArt) splitArt.classList.remove("hidden");
-        if (gridPos) gridPos.classList.remove("hidden");
-        if (wrap) wrap.classList.add("split-mode");
-        if (pageSel) { pageSel.value = "a4p"; state.pageSize = "a4p"; }
-        updateArtLabel();
-        updateArtDimensionHint();
-      }
-      else if (state.layout === 'vertical-full') {
+      if (state.layout === 'vertical-full') {
           if (vOpt) vOpt.classList.remove("hidden");
           if (pageSel) { pageSel.value = "a3-full"; state.pageSize = "a3-full"; }
       } 
@@ -287,6 +273,23 @@ function setupControls() {
               pageSel.value="a4l"; state.pageSize="a4l"; 
           }
       }
+      updateArtDimensionHint();
+      renderCalendar();
+    });
+  }
+
+  // Artwork Ratio Selector (None, 1/3, 1/2)
+  const artRatioSel = $("artRatioSelect");
+  if (artRatioSel) {
+    artRatioSel.addEventListener("change", e => {
+      state.artRatio = e.target.value;
+      const splitArt = $("splitArtOptions");
+      if (splitArt) {
+        if (state.artRatio === "none") splitArt.classList.add("hidden");
+        else splitArt.classList.remove("hidden");
+      }
+      updateArtLabel();
+      updateArtDimensionHint();
       renderCalendar();
     });
   }
@@ -577,12 +580,12 @@ function renderCalendar() {
 
     const wrapper = document.querySelector(".calendar-wrapper");
     if (wrapper) {
-      wrapper.classList.remove("binding-top", "binding-left", "split-mode");
+      wrapper.classList.remove("binding-top", "binding-left", "has-art-header");
       const oldGuide = wrapper.querySelector(".punch-guide-container");
       if (oldGuide) oldGuide.remove();
 
-      if (state.layout === 'wall-split') {
-        wrapper.classList.add("split-mode");
+      if (state.artRatio !== "none") {
+        wrapper.classList.add("has-art-header");
       }
 
       if (state.bindingEdge === 'top') {
@@ -604,11 +607,11 @@ function renderCalendar() {
       }
     }
 
-    // If Wall-Calendar Split layout, inject the 50% Artwork Zone at the top
-    if (state.layout === 'wall-split') {
+    // Top Artwork Header Rendering (Supports 1/3 and 1/2 ratios)
+    if (state.artRatio !== "none") {
       const currentImg = state.monthlyImages[state.month];
       const artZone = document.createElement("div");
-      artZone.className = "art-display-zone" + (currentImg ? " has-photo" : "");
+      artZone.className = `art-display-zone ratio-${state.artRatio}` + (currentImg ? " has-photo" : "");
 
       if (currentImg) {
         const imgEl = document.createElement("img");
@@ -617,7 +620,8 @@ function renderCalendar() {
       } else {
         const phText = document.createElement("span");
         phText.className = "art-placeholder-text";
-        phText.innerHTML = "🖼️ <b>Artwork & Photo Zone (Upper Page)</b><br>Upload an image or leave blank for a craft illustration area.";
+        const labelText = state.artRatio === "one-third" ? "1/3 Banner Artwork Area" : "1/2 Page Artwork Area";
+        phText.innerHTML = `🖼️ <b>${labelText}</b><br>Upload an image or leave blank for a craft illustration area.`;
         artZone.appendChild(phText);
       }
       container.appendChild(artZone);
@@ -639,7 +643,7 @@ function renderCalendar() {
     tDiv.appendChild(h2);
     container.appendChild(tDiv);
 
-    if (state.layout === 'grid' || state.layout === 'wall-split') renderGrid(container);
+    if (state.layout === 'grid') renderGrid(container);
     else renderVertical(container);
 }
 
@@ -1450,7 +1454,7 @@ async function activateLicense(k, silent) {
         console.error(e); 
         if(!silent) { 
             msg.textContent="✗ Error connecting to server."; 
-            msg.className="license-message error";
+            msg.className="license-message error"; 
             actBtn.disabled=false; 
         } 
     }
