@@ -53,8 +53,17 @@ const state = {
   showWeekNumbers: false,
   transparentBg: false,
   
-  // Font Colors
+  // Title Header Typography
+  titleFontFamily: 'Inter, system-ui, sans-serif',
+  titleSize: 32,
+  titleFontWeight: 400,
+  titleAlign: "left", // Options: "left", "center", "right"
   titleColor: "#111827",
+
+  // Dates & Grid Typography
+  gridFontFamily: 'Inter, system-ui, sans-serif',
+  dateSize: 14,
+  gridFontWeight: 400,
   dateColor: "#111827",
   weekdayColor: "#4b5563",
   weekendHeaderColor: "#b91c1c",
@@ -63,12 +72,6 @@ const state = {
   moonPhasesOn: false,
   customEvents: [],
   
-  fontFamily: 'Inter, system-ui, sans-serif',
-  titleSize: 32,
-  dateSize: 14,
-  lineHeight: 1.2,
-  letterSpacing: 0,
-  fontWeight: 400,
   pageSize: "a4l", 
   fileFormat: "pdf",
   exportRange: "single",
@@ -99,10 +102,16 @@ document.addEventListener("DOMContentLoaded", () => {
   checkSavedLicense();
   
   document.addEventListener('click', function(event) {
-    const sInp = $('fontSearchInput');
-    const sRes = $('fontSearchResults');
-    if (sInp && sRes && !sInp.contains(event.target) && !sRes.contains(event.target)) {
-      sRes.classList.add('hidden');
+    const tInp = $('titleFontSearchInput');
+    const tRes = $('titleFontSearchResults');
+    if (tInp && tRes && !tInp.contains(event.target) && !tRes.contains(event.target)) {
+      tRes.classList.add('hidden');
+    }
+
+    const gInp = $('gridFontSearchInput');
+    const gRes = $('gridFontSearchResults');
+    if (gInp && gRes && !gInp.contains(event.target) && !gRes.contains(event.target)) {
+      gRes.classList.add('hidden');
     }
   });
 });
@@ -348,6 +357,7 @@ function setupControls() {
     });
   }
 
+  // Column Setup for Verticals
   if ($("colCountSelect")) {
     $("colCountSelect").addEventListener("change", e => {
         state.colCount = parseInt(e.target.value);
@@ -497,15 +507,19 @@ function setupControls() {
     });
   }
 
-  setupFontSearch();
-  
+  // --- TYPOGRAPHY CONTROLS SETUP ---
+
+  // Title (Header) Typography
+  setupTitleTypography();
+
+  // Dates & Grid Typography
+  setupGridTypography();
+
   // Colors
   if ($("titleColorInput")) $("titleColorInput").addEventListener("input", e => { state.titleColor = e.target.value; renderCalendar(); });
   if ($("dateColorInput")) $("dateColorInput").addEventListener("input", e => { state.dateColor = e.target.value; renderCalendar(); });
   if ($("weekdayColorInput")) $("weekdayColorInput").addEventListener("input", e => { state.weekdayColor = e.target.value; renderCalendar(); });
   if ($("weekendHeaderColorInput")) $("weekendHeaderColorInput").addEventListener("input", e => { state.weekendHeaderColor = e.target.value; renderCalendar(); });
-
-  if ($("fontWeightSelect")) $("fontWeightSelect").addEventListener("change", e => { state.fontWeight = parseInt(e.target.value); renderCalendar(); });
 
   if ($("pageSizeSelect")) {
     $("pageSizeSelect").addEventListener("change", e => {
@@ -563,6 +577,232 @@ function setupControls() {
         }
     });
   }
+}
+
+// Popular fonts for quick selection
+const popularFontsByCategory = {
+  "sans-serif": ["Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Inter", "Raleway", "Ubuntu", "Work Sans", "Fira Sans", "Quicksand", "Archivo"],
+  "serif": ["Merriweather", "Playfair Display", "Lora", "PT Serif", "Libre Baskerville", "Crimson Text", "Arvo"],
+  "display": ["Oswald", "Bebas Neue", "Lobster", "Abril Fatface", "Righteous", "Patua One", "Titan One"],
+  "handwriting": ["Dancing Script", "Pacifico", "Caveat", "Satisfy", "Great Vibes", "Sacramento", "Yellowtail"]
+};
+
+const googleFontsByCategory = {
+  "sans-serif": [
+    "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Oswald", "Source Sans Pro", 
+    "Raleway", "PT Sans", "Roboto Condensed", "Nunito", "Rubik", "Mukta", "Arimo", 
+    "Noto Sans", "Dosis", "Josefin Sans", "Quicksand", "Cabin", "Inter", "Work Sans", 
+    "Karla", "Barlow", "Hind", "Oxygen", "Fira Sans", "Ubuntu", "Mulish", "Manrope", 
+    "DM Sans", "Plus Jakarta Sans", "Space Grotesk", "Outfit", "Red Hat Display", 
+    "Lexend", "Archivo", "Figtree", "Sora", "Urbanist", "Albert Sans"
+  ],
+  "serif": [
+    "Merriweather", "PT Serif", "Playfair Display", "Lora", "Libre Baskerville", 
+    "Bitter", "Noto Serif", "Crimson Text", "Arvo", "Cardo", "Old Standard TT", 
+    "Vollkorn", "Spectral", "Cormorant", "Source Serif Pro", "Libre Caslon Text", 
+    "EB Garamond", "Alegreya", "Crete Round", "Trocchi", "Judson", "Quando", 
+    "Domine", "Neuton", "Literata", "Lora", "Crimson Pro", "Fraunces"
+  ],
+  "display": [
+    "Righteous", "Bebas Neue", "Alfa Slab One", "Permanent Marker", "Abril Fatface", 
+    "Paytone One", "Fredoka One", "Passion One", "Bungee", "Black Ops One", 
+    "Monoton", "Yellowtail", "Lobster", "Fugaz One", "Bangers", "Titan One", 
+    "Ultra", "Russo One", "Anton", "Rowdies", "Staatliches", "Righteous", 
+    "Secular One", "Cinzel", "Gruppo", "Audiowide", "Megrim", "Orbitron"
+  ],
+  "handwriting": [
+    "Dancing Script", "Pacifico", "Shadows Into Light", "Indie Flower", 
+    "Amatic SC", "Caveat", "Satisfy", "Great Vibes", "Sacramento", "Kaushan Script", 
+    "Cookie", "Courgette", "Patrick Hand", "Permanent Marker", "Shadows Into Light Two", 
+    "Nothing You Could Do", "Rock Salt", "Covered By Your Grace", "Gloria Hallelujah", 
+    "Homemade Apple", "Architects Daughter", "Bad Script", "Sue Ellen Francisco", 
+    "Handlee", "Damion", "Allura", "Tangerine", "Marck Script"
+  ]
+};
+
+function setupTitleTypography() {
+  const styleSelect = $("titleFontStyleSelect");
+  const quickSelect = $("titleQuickFontSelect");
+  const inp = $("titleFontSearchInput");
+  const box = $("titleFontSearchResults");
+  const weightSelect = $("titleFontWeightSelect");
+  const sizeInput = $("titleSizeInput");
+
+  if (!styleSelect || !quickSelect || !inp || !box) return;
+
+  let currentCategory = "sans-serif";
+
+  function populateQuick(cat) {
+    quickSelect.innerHTML = '<option value="">Choose a popular font...</option>';
+    (popularFontsByCategory[cat] || []).forEach(f => {
+      const opt = document.createElement("option");
+      opt.value = f; opt.textContent = f;
+      quickSelect.appendChild(opt);
+    });
+  }
+
+  populateQuick(currentCategory);
+
+  styleSelect.addEventListener("change", e => {
+    currentCategory = e.target.value;
+    populateQuick(currentCategory);
+    inp.value = "";
+    box.classList.add("hidden");
+  });
+
+  quickSelect.addEventListener("change", e => {
+    if (e.target.value) {
+      applyTitleFont(e.target.value);
+      inp.value = e.target.value;
+    }
+  });
+
+  inp.addEventListener("input", e => {
+    const val = e.target.value.toLowerCase();
+    box.innerHTML = "";
+    if (!val) { box.classList.add("hidden"); return; }
+
+    const useDiv = document.createElement("div");
+    useDiv.className = "font-result-use";
+    useDiv.textContent = `Use font: "${e.target.value}"`;
+    useDiv.onclick = () => { applyTitleFont(e.target.value); box.classList.add("hidden"); };
+    box.appendChild(useDiv);
+
+    (googleFontsByCategory[currentCategory] || []).filter(f => f.toLowerCase().includes(val)).forEach(f => {
+      const div = document.createElement("div");
+      div.textContent = f;
+      div.onclick = () => { inp.value = f; applyTitleFont(f); box.classList.add("hidden"); };
+      box.appendChild(div);
+    });
+
+    box.classList.remove("hidden");
+  });
+
+  if (weightSelect) {
+    weightSelect.addEventListener("change", e => {
+      state.titleFontWeight = parseInt(e.target.value);
+      renderCalendar();
+    });
+  }
+
+  if (sizeInput) {
+    sizeInput.addEventListener("input", e => {
+      state.titleSize = parseInt(e.target.value) || 32;
+      renderCalendar();
+    });
+  }
+
+  // Alignment Buttons: Left, Center, Right
+  const alignButtons = [
+    { id: "btnAlignLeft", align: "left" },
+    { id: "btnAlignCenter", align: "center" },
+    { id: "btnAlignRight", align: "right" }
+  ];
+
+  alignButtons.forEach(btnConfig => {
+    const btn = $(btnConfig.id);
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      state.titleAlign = btnConfig.align;
+      alignButtons.forEach(b => {
+        const el = $(b.id);
+        if (el) el.classList.remove("active");
+      });
+      btn.classList.add("active");
+      renderCalendar();
+    });
+  });
+}
+
+function setupGridTypography() {
+  const styleSelect = $("gridFontStyleSelect");
+  const quickSelect = $("gridQuickFontSelect");
+  const inp = $("gridFontSearchInput");
+  const box = $("gridFontSearchResults");
+  const weightSelect = $("gridFontWeightSelect");
+  const sizeInput = $("dateSizeInput");
+
+  if (!styleSelect || !quickSelect || !inp || !box) return;
+
+  let currentCategory = "sans-serif";
+
+  function populateQuick(cat) {
+    quickSelect.innerHTML = '<option value="">Choose a popular font...</option>';
+    (popularFontsByCategory[cat] || []).forEach(f => {
+      const opt = document.createElement("option");
+      opt.value = f; opt.textContent = f;
+      quickSelect.appendChild(opt);
+    });
+  }
+
+  populateQuick(currentCategory);
+
+  styleSelect.addEventListener("change", e => {
+    currentCategory = e.target.value;
+    populateQuick(currentCategory);
+    inp.value = "";
+    box.classList.add("hidden");
+  });
+
+  quickSelect.addEventListener("change", e => {
+    if (e.target.value) {
+      applyGridFont(e.target.value);
+      inp.value = e.target.value;
+    }
+  });
+
+  inp.addEventListener("input", e => {
+    const val = e.target.value.toLowerCase();
+    box.innerHTML = "";
+    if (!val) { box.classList.add("hidden"); return; }
+
+    const useDiv = document.createElement("div");
+    useDiv.className = "font-result-use";
+    useDiv.textContent = `Use font: "${e.target.value}"`;
+    useDiv.onclick = () => { applyGridFont(e.target.value); box.classList.add("hidden"); };
+    box.appendChild(useDiv);
+
+    (googleFontsByCategory[currentCategory] || []).filter(f => f.toLowerCase().includes(val)).forEach(f => {
+      const div = document.createElement("div");
+      div.textContent = f;
+      div.onclick = () => { inp.value = f; applyGridFont(f); box.classList.add("hidden"); };
+      box.appendChild(div);
+    });
+
+    box.classList.remove("hidden");
+  });
+
+  if (weightSelect) {
+    weightSelect.addEventListener("change", e => {
+      state.gridFontWeight = parseInt(e.target.value);
+      renderCalendar();
+    });
+  }
+
+  if (sizeInput) {
+    sizeInput.addEventListener("input", e => {
+      state.dateSize = parseInt(e.target.value) || 14;
+      renderCalendar();
+    });
+  }
+}
+
+function applyTitleFont(name) {
+  const link = document.createElement("link");
+  link.href = `https://fonts.googleapis.com/css2?family=${name.replace(/\s+/g, '+')}:wght@300;400;600;700&display=swap`;
+  link.rel = "stylesheet";
+  document.head.appendChild(link);
+  state.titleFontFamily = `"${name}", sans-serif`;
+  renderCalendar();
+}
+
+function applyGridFont(name) {
+  const link = document.createElement("link");
+  link.href = `https://fonts.googleapis.com/css2?family=${name.replace(/\s+/g, '+')}:wght@300;400;600;700&display=swap`;
+  link.rel = "stylesheet";
+  document.head.appendChild(link);
+  state.gridFontFamily = `"${name}", sans-serif`;
+  renderCalendar();
 }
 
 function getISOWeekNumber(d) {
@@ -629,16 +869,17 @@ function renderCalendar() {
 
     const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     
+    // Title Header with its own typography and alignment
     const tDiv = document.createElement("div");
-    tDiv.style.fontFamily = state.fontFamily;
+    tDiv.style.fontFamily = state.titleFontFamily;
     tDiv.style.color = state.titleColor;
-    tDiv.style.textAlign = "left"; 
+    tDiv.style.textAlign = state.titleAlign;
     tDiv.style.marginBottom = "14px";
     
     const h2 = document.createElement("h2");
     h2.textContent = `${monthNames[state.month]} ${state.year}`;
     h2.style.fontSize = state.titleSize + "px";
-    h2.style.fontWeight = state.fontWeight;
+    h2.style.fontWeight = state.titleFontWeight;
     h2.style.margin = "0";
     tDiv.appendChild(h2);
     container.appendChild(tDiv);
@@ -676,7 +917,7 @@ function renderGrid(container) {
             const th = document.createElement("th"); 
             th.textContent = h;
             th.style.border = borderStyle;
-            th.style.fontWeight = state.fontWeight;
+            th.style.fontWeight = state.gridFontWeight;
             if(weekendIndices.includes(i)) {
                 th.style.color = state.weekendHeaderColor;
             } else {
@@ -730,7 +971,7 @@ function renderGrid(container) {
             const dNum = document.createElement("div");
             dNum.className = "date-number";
             dNum.textContent = day;
-            dNum.style.fontWeight = state.fontWeight;
+            dNum.style.fontWeight = state.gridFontWeight;
             dNum.style.color = state.dateColor;
             td.appendChild(dNum);
 
@@ -752,7 +993,7 @@ function renderGrid(container) {
                 if(ev.type==="bank") sp.className="event-bank";
                 if(ev.type==="special") sp.className="event-special";
                 if(ev.type==="custom") sp.className="event-custom";
-                sp.style.fontWeight = state.fontWeight;
+                sp.style.fontWeight = state.gridFontWeight;
                 evCont.appendChild(sp);
             });
             td.appendChild(evCont);
@@ -779,7 +1020,7 @@ function renderVertical(container) {
     const thDate = document.createElement("th"); 
     thDate.textContent = "DATE"; 
     thDate.style.border = borderStyle;
-    thDate.style.fontWeight = state.fontWeight;
+    thDate.style.fontWeight = state.gridFontWeight;
     tr.appendChild(thDate);
     
     if(state.layout === 'vertical-full' || state.layout === 'vertical-a4') {
@@ -789,13 +1030,13 @@ function renderVertical(container) {
             if(!label) label = "Name " + (i+1);
             th.textContent = label.toUpperCase(); 
             th.style.border = borderStyle;
-            th.style.fontWeight = state.fontWeight;
+            th.style.fontWeight = state.gridFontWeight;
             tr.appendChild(th);
         }
     } else {
         const th = document.createElement("th"); th.textContent="NOTES"; 
         th.style.border = borderStyle;
-        th.style.fontWeight = state.fontWeight;
+        th.style.fontWeight = state.gridFontWeight;
         tr.appendChild(th);
     }
     thead.appendChild(tr);
@@ -839,7 +1080,7 @@ function renderVertical(container) {
         td1.innerHTML = `<div class="vertical-cell-container">
             <div class="v-top-row">
                 <span class="v-day-name" style="color:${dayColor}">${dayName}</span>
-                <span class="v-day-num" style="color:${state.dateColor}; font-weight:${state.fontWeight}">${String(d).padStart(2,'0')}</span>
+                <span class="v-day-num" style="color:${state.dateColor}; font-weight:${state.gridFontWeight}">${String(d).padStart(2,'0')}</span>
             </div>
             <div class="v-bottom-row">
                 ${eventHTML}${moonHTML}
@@ -861,10 +1102,10 @@ function renderVertical(container) {
 
 // UTILS
 function applyStyles(t) {
-    t.style.fontFamily = state.fontFamily;
+    t.style.fontFamily = state.gridFontFamily;
     t.style.color = state.dateColor;
     t.style.fontSize = state.dateSize + "px";
-    t.style.fontWeight = state.fontWeight;
+    t.style.fontWeight = state.gridFontWeight;
 }
 
 function getDayHeaders() {
@@ -963,117 +1204,6 @@ function computeMoonPhaseDays(year, month) {
         check('new',0); check('first',0.25); check('full',0.5); check('last',0.75);
     }
     return res;
-}
-
-// Popular fonts for quick selection
-const popularFontsByCategory = {
-  "sans-serif": ["Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Inter", "Raleway", "Ubuntu", "Work Sans", "Fira Sans", "Quicksand", "Archivo"],
-  "serif": ["Merriweather", "Playfair Display", "Lora", "PT Serif", "Libre Baskerville", "Crimson Text", "Arvo"],
-  "display": ["Oswald", "Bebas Neue", "Lobster", "Abril Fatface", "Righteous", "Patua One", "Titan One"],
-  "handwriting": ["Dancing Script", "Pacifico", "Caveat", "Satisfy", "Great Vibes", "Sacramento", "Yellowtail"]
-};
-
-// Comprehensive Google Fonts Database by Category
-const googleFontsByCategory = {
-  "sans-serif": [
-    "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Oswald", "Source Sans Pro", 
-    "Raleway", "PT Sans", "Roboto Condensed", "Nunito", "Rubik", "Mukta", "Arimo", 
-    "Noto Sans", "Dosis", "Josefin Sans", "Quicksand", "Cabin", "Inter", "Work Sans", 
-    "Karla", "Barlow", "Hind", "Oxygen", "Fira Sans", "Ubuntu", "Mulish", "Manrope",
-    "DM Sans", "Plus Jakarta Sans", "Space Grotesk", "Outfit", "Red Hat Display", 
-    "Lexend", "Archivo", "Figtree", "Sora", "Urbanist", "Albert Sans"
-  ],
-  "serif": [
-    "Merriweather", "PT Serif", "Playfair Display", "Lora", "Libre Baskerville", 
-    "Bitter", "Noto Serif", "Crimson Text", "Arvo", "Cardo", "Old Standard TT",
-    "Vollkorn", "Spectral", "Cormorant", "Source Serif Pro", "Libre Caslon Text",
-    "EB Garamond", "Alegreya", "Crete Round", "Trocchi", "Judson", "Quando",
-    "Domine", "Neuton", "Literata", "Lora", "Crimson Pro", "Fraunces"
-  ],
-  "display": [
-    "Righteous", "Bebas Neue", "Alfa Slab One", "Permanent Marker", "Abril Fatface",
-    "Paytone One", "Fredoka One", "Passion One", "Bungee", "Black Ops One",
-    "Monoton", "Yellowtail", "Lobster", "Fugaz One", "Bangers", "Titan One",
-    "Ultra", "Russo One", "Anton", "Rowdies", "Staatliches", "Righteous",
-    "Secular One", "Cinzel", "Gruppo", "Audiowide", "Megrim", "Orbitron"
-  ],
-  "handwriting": [
-    "Dancing Script", "Pacifico", "Shadows Into Light", "Indie Flower", 
-    "Amatic SC", "Caveat", "Satisfy", "Great Vibes", "Sacramento", "Kaushan Script",
-    "Cookie", "Courgette", "Patrick Hand", "Permanent Marker", "Shadows Into Light Two",
-    "Nothing You Could Do", "Rock Salt", "Covered By Your Grace", "Gloria Hallelujah",
-    "Homemade Apple", "Architects Daughter", "Bad Script", "Sue Ellen Francisco",
-    "Handlee", "Damion", "Allura", "Tangerine", "Marck Script"
-  ]
-};
-
-function setupFontSearch() {
-  const styleSelect = $("fontStyleSelect");
-  const quickSelect = $("quickFontSelect");
-  const inp = $("fontSearchInput");
-  const box = $("fontSearchResults");
-  if(!inp || !styleSelect || !quickSelect) return;
-
-  let currentCategory = "sans-serif";
-
-  function populateQuickSelect(category) {
-    quickSelect.innerHTML = '<option value="">Choose a popular font...</option>';
-    const fonts = popularFontsByCategory[category] || [];
-    fonts.forEach(font => {
-      const opt = document.createElement("option");
-      opt.value = font;
-      opt.textContent = font;
-      quickSelect.appendChild(opt);
-    });
-  }
-
-  populateQuickSelect(currentCategory);
-
-  styleSelect.addEventListener("change", e => {
-    currentCategory = e.target.value;
-    populateQuickSelect(currentCategory);
-    inp.value = "";
-    box.classList.add("hidden");
-  });
-
-  quickSelect.addEventListener("change", e => {
-    if(e.target.value) {
-      applyFont(e.target.value);
-      inp.value = e.target.value;
-    }
-  });
-
-  inp.addEventListener("input", e => {
-      const val = e.target.value.toLowerCase(); 
-      box.innerHTML="";
-      
-      if(!val) { box.classList.add("hidden"); return; }
-
-      const fontsToSearch = googleFontsByCategory[currentCategory] || [];
-
-      const useDiv = document.createElement("div"); 
-      useDiv.className = "font-result-use"; 
-      useDiv.textContent = `Use font: "${e.target.value}"`;
-      useDiv.onclick = () => { applyFont(e.target.value); box.classList.add("hidden"); };
-      box.appendChild(useDiv);
-
-      fontsToSearch.filter(f => f.toLowerCase().includes(val)).forEach(f => {
-          const div = document.createElement("div"); 
-          div.textContent = f;
-          div.onclick = () => { inp.value = f; applyFont(f); box.classList.add("hidden"); };
-          box.appendChild(div);
-      });
-
-      box.classList.remove("hidden");
-  });
-}
-
-function applyFont(name) {
-    const link = document.createElement("link");
-    link.href = `https://fonts.googleapis.com/css2?family=${name.replace(/\s+/g,'+')}:wght@300;400;600;700&display=swap`;
-    link.rel="stylesheet"; document.head.appendChild(link);
-    state.fontFamily = `"${name}", sans-serif`;
-    renderCalendar();
 }
 
 function renderCustomEventsList() {
@@ -1220,8 +1350,19 @@ function exportVerticalSVG(styled) {
 
     const mNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const title = `${mNames[state.month]} ${state.year}`;
-    const tSize = isA4 ? 90 : 120;
-    svg += `<text x="${margin}" y="${titleY}" font-family="${state.fontFamily.replace(/"/g,"'")}" font-size="${tSize}" font-weight="${state.fontWeight}" fill="${state.titleColor}">${escapeHtml(title)}</text>`;
+    const tSize = state.titleSize ? state.titleSize * (isA4 ? 2.5 : 3.5) : (isA4 ? 90 : 120);
+    
+    let titleAnchor = "start";
+    let titlePosX = margin;
+    if (state.titleAlign === "center") {
+      titleAnchor = "middle";
+      titlePosX = width / 2;
+    } else if (state.titleAlign === "right") {
+      titleAnchor = "end";
+      titlePosX = width - margin;
+    }
+
+    svg += `<text x="${titlePosX}" y="${titleY}" text-anchor="${titleAnchor}" font-family="${state.titleFontFamily.replace(/"/g,"'")}" font-size="${tSize}" font-weight="${state.titleFontWeight}" fill="${state.titleColor}">${escapeHtml(title)}</text>`;
 
     const bW = state.showGridLines ? state.borderWidth : 0;
     const drawCell = (x, y, w, h, text, isHeader=false) => {
@@ -1229,7 +1370,7 @@ function exportVerticalSVG(styled) {
         if(isHeader) {
             if(!state.transparentBg) svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#ffffff" />`;
             if(state.showGridLines) svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#e5e7eb" stroke-width="${bW}"/>`;
-            svg += `<text x="${x + w/2}" y="${y + h/2 + 10}" text-anchor="middle" font-family="sans-serif" font-size="${fs}" font-weight="bold" fill="#666">${escapeHtml(text)}</text>`;
+            svg += `<text x="${x + w/2}" y="${y + h/2 + 10}" text-anchor="middle" font-family="${state.gridFontFamily.replace(/"/g,"'")}" font-size="${fs}" font-weight="bold" fill="#666">${escapeHtml(text)}</text>`;
         } else {
             if(state.showGridLines) svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#e5e7eb" stroke-width="${bW}"/>`;
         }
@@ -1264,10 +1405,10 @@ function exportVerticalSVG(styled) {
         const textFS = isA4 ? 24 : 30;
         const moonFS = isA4 ? 32 : 40;
 
-        svg += `<text x="${margin + 20}" y="${dateTextY}" font-family="${state.fontFamily.replace(/"/g,"'")}" font-size="${dateFS}" font-weight="bold" fill="${isWknd?'#be123c':'#111827'}">${d}</text>`;
+        svg += `<text x="${margin + 20}" y="${dateTextY}" font-family="${state.gridFontFamily.replace(/"/g,"'")}" font-size="${dateFS}" font-weight="bold" fill="${isWknd?'#be123c':'#111827'}">${d}</text>`;
         
         const dColor = isWknd ? state.weekendHeaderColor : state.weekdayColor;
-        svg += `<text x="${margin + (isA4?80:90)}" y="${dateTextY}" font-family="sans-serif" font-size="${dayFS}" fill="${dColor}">${dayName}</text>`;
+        svg += `<text x="${margin + (isA4?80:90)}" y="${dateTextY}" font-family="${state.gridFontFamily.replace(/"/g,"'")}" font-size="${dayFS}" fill="${dColor}">${dayName}</text>`;
 
         const events = getEventsForDate(dateObj, iso);
         let evX = margin + (isA4 ? 150 : 180);
@@ -1276,7 +1417,7 @@ function exportVerticalSVG(styled) {
             if(ev.type==="bank") col="#b91c1c";
             if(ev.type==="special") col="#7c3aed";
             if(ev.type==="custom") col="#9a3412";
-            svg += `<text x="${evX}" y="${dateTextY}" font-family="${state.fontFamily.replace(/"/g,"'")}" font-size="${textFS}" fill="${col}">${escapeHtml(ev.label)}</text>`;
+            svg += `<text x="${evX}" y="${dateTextY}" font-family="${state.gridFontFamily.replace(/"/g,"'")}" font-size="${textFS}" fill="${col}">${escapeHtml(ev.label)}</text>`;
             evX += (ev.label.length * (isA4 ? 14 : 18)) + 20; 
         });
 
@@ -1328,7 +1469,18 @@ function exportGridSVG(styled) {
 
     const mNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const title = `${mNames[state.month]} ${state.year}`;
-    svg += `<text x="${width/2}" y="${titleY}" text-anchor="middle" font-family="${state.fontFamily.replace(/"/g,"'")}" font-size="100" font-weight="${state.fontWeight}" fill="${state.titleColor}">${escapeHtml(title)}</text>`;
+    
+    let titleAnchor = "middle";
+    let titlePosX = width / 2;
+    if (state.titleAlign === "left") {
+      titleAnchor = "start";
+      titlePosX = margin;
+    } else if (state.titleAlign === "right") {
+      titleAnchor = "end";
+      titlePosX = width - margin;
+    }
+
+    svg += `<text x="${titlePosX}" y="${titleY}" text-anchor="${titleAnchor}" font-family="${state.titleFontFamily.replace(/"/g,"'")}" font-size="100" font-weight="${state.titleFontWeight}" fill="${state.titleColor}">${escapeHtml(title)}</text>`;
 
     const bW = state.showGridLines ? state.borderWidth : 0;
 
@@ -1338,7 +1490,7 @@ function exportGridSVG(styled) {
         headers.forEach((h, i) => {
             const hx = margin + (i * cellW) + (cellW/2);
             let fill = (weekendIndices.includes(i)) ? state.weekendHeaderColor : state.weekdayColor;
-            svg += `<text x="${hx}" y="${headerY}" text-anchor="middle" font-family="sans-serif" font-size="30" font-weight="bold" fill="${fill}">${h}</text>`;
+            svg += `<text x="${hx}" y="${headerY}" text-anchor="middle" font-family="${state.gridFontFamily.replace(/"/g,"'")}" font-size="30" font-weight="bold" fill="${fill}">${h}</text>`;
         });
     }
 
@@ -1368,11 +1520,11 @@ function exportGridSVG(styled) {
             const pad = 20; const fsDate = 40; const fsEv = 26;
 
             if(p.includes('top')) { dateY = y + pad + fsDate; } else { dateY = y + cellH - pad; }
-            if(p.includes('left')) { dateX = x + pad; } else { dateX = x + cellW - pad; textAnchor="end"; }
+            if(p.includes('left')) { dateX = x + pad; } else { dateX = x + cellW - pad; }
             if(p.includes('top')) { evY = y + cellH - pad; } else { evY = y + pad + fsEv; }
             if(p.includes('right')) { evX = x + cellW - pad; evAnchor="end"; } else { evX = x + pad; evAnchor="start"; }
 
-            svg += `<text x="${dateX}" y="${dateY}" text-anchor="${p.includes('right')?'end':'start'}" font-family="${state.fontFamily.replace(/"/g,"'")}" font-size="${fsDate}" font-weight="${state.fontWeight}" fill="${state.dateColor}">${day}</text>`;
+            svg += `<text x="${dateX}" y="${dateY}" text-anchor="${p.includes('right')?'end':'start'}" font-family="${state.gridFontFamily.replace(/"/g,"'")}" font-size="${fsDate}" font-weight="${state.gridFontWeight}" fill="${state.dateColor}">${day}</text>`;
 
             if(moonMap) {
                 const sym = getMoonSymbol(day, moonMap);
@@ -1389,7 +1541,7 @@ function exportGridSVG(styled) {
                 let col = "#374151";
                 if(ev.type==="bank") col="#b91c1c";
                 if(ev.type==="special") col="#7c3aed";
-                svg += `<text x="${evX}" y="${currentEvY}" text-anchor="${evAnchor}" font-family="${state.fontFamily.replace(/"/g,"'")}" font-size="${fsEv}" fill="${col}">${escapeHtml(ev.label)}</text>`;
+                svg += `<text x="${evX}" y="${currentEvY}" text-anchor="${evAnchor}" font-family="${state.gridFontFamily.replace(/"/g,"'")}" font-size="${fsEv}" fill="${col}">${escapeHtml(ev.label)}</text>`;
                 currentEvY += (30 * stackDir);
             });
             day++;
@@ -1454,7 +1606,7 @@ async function activateLicense(k, silent) {
         console.error(e); 
         if(!silent) { 
             msg.textContent="✗ Error connecting to server."; 
-            msg.className="license-message error"; 
+            msg.className="license-message error";
             actBtn.disabled=false; 
         } 
     }
