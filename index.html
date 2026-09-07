@@ -87,81 +87,6 @@
                     </div>
                 </div>
             </section>
-        </div>
-
-        <!-- COLUMN 2: Typography & Custom Events -->
-        <div class="sidebar-col">
-            
-            <!-- TYPOGRAPHY -->
-            <section class="panel">
-                <h2>Typography</h2>
-                
-                <label>Font style
-                    <select id="fontStyleSelect">
-                        <option value="sans-serif">Sans-serif</option>
-                        <option value="serif">Serif</option>
-                        <option value="display">Display</option>
-                        <option value="handwriting">Handwriting</option>
-                    </select>
-                </label>
-                
-                <label>Quick select font
-                    <select id="quickFontSelect">
-                        <option value="">Choose a popular font...</option>
-                    </select>
-                </label>
-                
-                <div class="font-search-container">
-                    <label>Font family (Google Fonts)</label>
-                    <input id="fontSearchInput" type="text" placeholder="Type to search (e.g. Poppins)" autocomplete="off" />
-                    <div id="fontSearchResults" class="font-results-dropdown hidden"></div>
-                </div>
-
-                <label>Font weight
-                    <select id="fontWeightSelect">
-                        <option value="300">Light</option>
-                        <option value="400" selected>Regular</option>
-                        <option value="600">Semi-bold</option>
-                        <option value="700">Bold</option>
-                    </select>
-                </label>
-                
-                <!-- Main Text Colors -->
-                <div class="two-col">
-                    <div>
-                        <label>Title colour</label>
-                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
-                            Pick Colour
-                            <input id="titleColorInput" type="color" value="#111827" />
-                        </div>
-                    </div>
-                    <div>
-                        <label>Date colour</label>
-                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
-                            Pick Colour
-                            <input id="dateColorInput" type="color" value="#111827" />
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Day/Weekend Colors -->
-                <div class="two-col">
-                    <div>
-                        <label>Weekday Colour</label>
-                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
-                            Pick Colour
-                            <input id="weekdayColorInput" type="color" value="#4b5563" />
-                        </div>
-                    </div>
-                    <div>
-                        <label>Weekend Colour</label>
-                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
-                            Pick Colour
-                            <input id="weekendHeaderColorInput" type="color" value="#b91c1c" />
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             <!-- CUSTOM EVENTS -->
             <section id="customEventsPanel" class="panel">
@@ -191,6 +116,133 @@
                 </div>
 
                 <ul id="customEventList" class="event-list"></ul>
+            </section>
+        </div>
+
+        <!-- COLUMN 2: Typography (Split: Title Header vs. Body/Grid) -->
+        <div class="sidebar-col">
+            
+            <!-- TITLE (HEADER) TYPOGRAPHY -->
+            <section class="panel">
+                <h2>Title (Header) Typography</h2>
+                
+                <label>Title Font Style
+                    <select id="titleFontStyleSelect">
+                        <option value="sans-serif">Sans-serif</option>
+                        <option value="serif">Serif</option>
+                        <option value="display">Display</option>
+                        <option value="handwriting">Handwriting</option>
+                    </select>
+                </label>
+                
+                <label>Quick Select Font
+                    <select id="titleQuickFontSelect">
+                        <option value="">Choose a popular font...</option>
+                    </select>
+                </label>
+                
+                <div class="font-search-container">
+                    <label>Font Family (Google Fonts)</label>
+                    <input id="titleFontSearchInput" type="text" placeholder="Search title font (e.g. Playfair)" autocomplete="off" />
+                    <div id="titleFontSearchResults" class="font-results-dropdown hidden"></div>
+                </div>
+
+                <div class="two-col">
+                    <label>Font Weight
+                        <select id="titleFontWeightSelect">
+                            <option value="300">Light</option>
+                            <option value="400" selected>Regular</option>
+                            <option value="600">Semi-bold</option>
+                            <option value="700">Bold</option>
+                        </select>
+                    </label>
+                    <label>Size (px)
+                        <input id="titleSizeInput" type="number" min="16" max="96" value="32" />
+                    </label>
+                </div>
+
+                <!-- Title Justification Alignment Buttons -->
+                <div class="setting-row" style="margin-top: 10px;">
+                    <label>Title Alignment</label>
+                    <div class="toggle-group" id="titleAlignToggleGroup">
+                        <button type="button" class="btn-toggle active" id="btnAlignLeft" data-align="left">Left</button>
+                        <button type="button" class="btn-toggle" id="btnAlignCenter" data-align="center">Center</button>
+                        <button type="button" class="btn-toggle" id="btnAlignRight" data-align="right">Right</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <label>Title Colour</label>
+                    <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
+                        Pick Colour
+                        <input id="titleColorInput" type="color" value="#111827" />
+                    </div>
+                </div>
+            </section>
+
+            <!-- CALENDAR GRID & DATES TYPOGRAPHY -->
+            <section class="panel">
+                <h2>Dates & Grid Typography</h2>
+                
+                <label>Dates Font Style
+                    <select id="gridFontStyleSelect">
+                        <option value="sans-serif">Sans-serif</option>
+                        <option value="serif">Serif</option>
+                        <option value="display">Display</option>
+                        <option value="handwriting">Handwriting</option>
+                    </select>
+                </label>
+                
+                <label>Quick Select Font
+                    <select id="gridQuickFontSelect">
+                        <option value="">Choose a popular font...</option>
+                    </select>
+                </label>
+                
+                <div class="font-search-container">
+                    <label>Font Family (Google Fonts)</label>
+                    <input id="gridFontSearchInput" type="text" placeholder="Search dates font (e.g. Inter)" autocomplete="off" />
+                    <div id="gridFontSearchResults" class="font-results-dropdown hidden"></div>
+                </div>
+
+                <div class="two-col">
+                    <label>Font Weight
+                        <select id="gridFontWeightSelect">
+                            <option value="300">Light</option>
+                            <option value="400" selected>Regular</option>
+                            <option value="600">Semi-bold</option>
+                            <option value="700">Bold</option>
+                        </select>
+                    </label>
+                    <label>Date Size (px)
+                        <input id="dateSizeInput" type="number" min="10" max="36" value="14" />
+                    </label>
+                </div>
+
+                <div class="two-col" style="margin-top: 8px;">
+                    <div>
+                        <label>Date Colour</label>
+                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
+                            Pick Colour
+                            <input id="dateColorInput" type="color" value="#111827" />
+                        </div>
+                    </div>
+                    <div>
+                        <label>Weekday Colour</label>
+                        <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
+                            Pick Colour
+                            <input id="weekdayColorInput" type="color" value="#4b5563" />
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 8px;">
+                    <label>Weekend Header Colour</label>
+                    <div class="color-btn-wrapper tmm-btn tmm-btn-primary">
+                        Pick Colour
+                        <input id="weekendHeaderColorInput" type="color" value="#b91c1c" />
+                    </div>
+                </div>
             </section>
         </div>
 
