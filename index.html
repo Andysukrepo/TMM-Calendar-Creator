@@ -65,22 +65,29 @@
                 </div>
             </section>
             
-            <!-- DATE SELECTION -->
-            <section class="panel">
-                <h2>Date selection</h2>
-                <div class="two-col">
-                    <label>
-                        Month
-                        <select id="monthSelect"></select>
-                    </label>
-                    <label>
-                        Year
-                        <select id="yearSelect"></select>
-                    </label>
-                </div>
-            </section>
+          <!-- DATE SELECTION -->
+<section class="panel">
+    <h2>Date selection</h2>
+    <div class="two-col">
+        <label>
+            Month
+            <select id="monthSelect"></select>
+        </label>
+        <label>
+            Year
+            <select id="yearSelect"></select>
+        </label>
+    </div>
+    
+    <div class="setting-row">
+        <label>Week Starts On</label>
+        <div class="toggle-group" id="weekStartToggle">
+            <button type="button" class="btn-toggle active" id="btnStartMon" data-start="monday">Mon</button>
+            <button type="button" class="btn-toggle" id="btnStartSun" data-start="sunday">Sun</button>
         </div>
-
+    </div>
+</section>
+            
         <!-- COLUMN 2: Typography & Custom Events -->
         <div class="sidebar-col">
             
