@@ -260,8 +260,23 @@
                         </select>
                     </label>
                 </div>
-            </section>
 
+                <div class="divider"></div>
+
+                <!-- BINDING MARGIN & GUIDES -->
+                <label>Binding edge offset
+                    <select id="bindingEdgeSelect">
+                        <option value="none" selected>None (Standard)</option>
+                        <option value="top">Top (+12mm for Wire-O / Spiral)</option>
+                        <option value="left">Left (+12mm for Side Binding)</option>
+                    </select>
+                </label>
+
+                <div class="toggle-row small" style="margin-top: 8px;">
+                    <input id="showPunchGuideToggle" type="checkbox" />
+                    <span>Show punch hole guides</span>
+                </div>
+            </section>
             <!-- EXPORT OPTIONS -->
             <section class="panel export-panel">
                 <h2>Export calendar</h2>
