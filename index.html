@@ -177,6 +177,8 @@
                     </label>
                     <button id="addCustomEventBtn" class="tmm-btn tmm-btn-primary full-width small">Add</button>
                     <button id="clearCustomEventsBtn" class="tmm-btn tmm-btn-ghost full-width small" style="margin-top: 8px; color: #b91c1c; border-color: #fca5a5;">Clear All</button>
+                </div>
+                
                 <div class="divider" style="margin: 10px 0;"></div>
                 
                 <div class="setting-row">
@@ -187,7 +189,7 @@
                     </button>
                     <span style="font-size: 11px; color: #9ca3af; margin-top: 4px;">Format: <code>2026-10-15, Grandma's Birthday</code></span>
                 </div>
-                </div>
+
                 <ul id="customEventList" class="event-list"></ul>
             </section>
         </div>
@@ -203,11 +205,35 @@
                     Calendar Layout
                     <select id="layoutSelect">
                         <option value="grid">Standard Monthly Grid</option>
+                        <option value="wall-split">Wall Calendar (Top Artwork / Bottom Grid)</option>
                         <option value="vertical-a4">Vertical A4 (Full Width)</option>
                         <option value="vertical-full">Vertical A3 (Full Width)</option>
                         <option value="vertical-slim">Vertical A3 (Slim/Half)</option>
                     </select>
                 </label>
+
+                <!-- WALL CALENDAR ARTWORK CONTROLS -->
+                <div id="splitArtOptions" class="hidden" style="background: #f9fafb; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 14px;">
+                    <label style="font-weight: 600; margin-bottom: 6px; display: block;">Artwork / Image for <span id="currentArtMonthName">This Month</span></label>
+                    
+                    <input type="file" id="artImageInput" accept="image/png, image/jpeg, image/webp" style="display: none;" />
+                    
+                    <div class="two-col" style="gap: 8px;">
+                        <button type="button" id="uploadArtBtn" class="tmm-btn tmm-btn-primary small full-width">
+                            🖼️ Upload Image
+                        </button>
+                        <button type="button" id="removeArtBtn" class="tmm-btn tmm-btn-ghost small full-width" style="color: #b91c1c; border-color: #fca5a5;">
+                            Remove
+                        </button>
+                    </div>
+
+                    <div class="checkbox-row" style="margin-top: 10px;">
+                        <label>
+                            <input type="checkbox" id="useSameArtToggle" />
+                            <span>Use this image for all 12 months</span>
+                        </label>
+                    </div>
+                </div>
 
                 <!-- Vertical Options -->
                 <div id="verticalOptions" class="hidden" style="background: #f9fafb; padding: 10px; border:1px solid #e5e7eb; border-radius: 8px; margin-bottom: 12px;">
@@ -231,10 +257,11 @@
 
                 <!-- Grid Styling -->
                 <div class="toggle-row" style="margin-bottom: 8px;">
-                    <div class="toggle-row" style="margin-bottom: 8px;">
                     <input id="showWeekNumbersToggle" type="checkbox" />
                     <span>Show ISO Week Numbers</span>
                 </div>
+
+                <div class="toggle-row" style="margin-bottom: 8px;">
                     <input id="showGridLinesToggle" type="checkbox" checked />
                     <span>Show Grid Lines</span>
                 </div>
@@ -291,6 +318,7 @@
                     <span>Show punch hole guides</span>
                 </div>
             </section>
+
             <!-- EXPORT OPTIONS -->
             <section class="panel export-panel">
                 <h2>Export calendar</h2>
@@ -313,20 +341,20 @@
                 </div>
 
                 <label>File format
-    <select id="fileFormatSelect">
-        <option value="png">PNG</option>
-        <option value="pdf" selected>PDF</option>
-        <option value="svg-simple">SVG (simple)</option>
-        <option value="svg-styled">SVG (styled)</option>
-    </select>
-</label>
+                    <select id="fileFormatSelect">
+                        <option value="png">PNG</option>
+                        <option value="pdf" selected>PDF</option>
+                        <option value="svg-simple">SVG (simple)</option>
+                        <option value="svg-styled">SVG (styled)</option>
+                    </select>
+                </label>
 
-<label id="exportRangeRow">Export range
-    <select id="exportRangeSelect">
-        <option value="single" selected>Current Month Only</option>
-        <option value="full-year">Full Year (12 Months Batch)</option>
-    </select>
-</label>
+                <label id="exportRangeRow">Export range
+                    <select id="exportRangeSelect">
+                        <option value="single" selected>Current Month Only</option>
+                        <option value="full-year">Full Year (12 Months Batch)</option>
+                    </select>
+                </label>
                 
                 <div class="toggle-row small" style="margin-top:8px;">
                     <input id="transparentBgToggle" type="checkbox" />
