@@ -75,7 +75,11 @@ const state = {
 
   // Binding & Punch Guides
   bindingEdge: "none",
-  showPunchGuide: false
+  showPunchGuide: false,
+
+  // Artwork Storage (array of 12 images: indices 0..11)
+  monthlyImages: Array(12).fill(null),
+  useSameArtForAllMonths: false
 };
 
 function $(id) { return document.getElementById(id); }
@@ -144,6 +148,13 @@ function renderHolidayControls() {
     });
 }
 
+function updateArtLabel() {
+  const lbl = $("currentArtMonthName");
+  if (!lbl) return;
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  lbl.textContent = state.useSameArtForAllMonths ? "All Months" : monthNames[state.month];
+}
+
 function setupControls() {
   const monthSelect = $("monthSelect");
   const yearSelect = $("yearSelect");
@@ -158,6 +169,7 @@ function setupControls() {
     monthSelect.value = state.month;
     monthSelect.addEventListener("change", e => { 
         state.month = parseInt(e.target.value); 
+        updateArtLabel();
         const accords = document.querySelectorAll("#holidayListContainer details");
         accords.forEach((acc) => {
             const sum = acc.querySelector("summary");
@@ -183,14 +195,26 @@ function setupControls() {
       state.layout = e.target.value;
       const vOpt = $("verticalOptions");
       const gridPos = $("gridSpecificOptions");
+      const splitArt = $("splitArtOptions");
       const wrap = document.querySelector(".calendar-wrapper");
       const pageSel = $("pageSizeSelect");
 
       if (vOpt) vOpt.classList.add("hidden");
       if (gridPos) gridPos.classList.add("hidden");
-      if (wrap) wrap.classList.remove("slim-mode");
+      if (splitArt) splitArt.classList.add("hidden");
+      if (wrap) {
+        wrap.classList.remove("slim-mode");
+        wrap.classList.remove("split-mode");
+      }
 
-      if (state.layout === 'vertical-full') {
+      if (state.layout === 'wall-split') {
+        if (splitArt) splitArt.classList.remove("hidden");
+        if (gridPos) gridPos.classList.remove("hidden");
+        if (wrap) wrap.classList.add("split-mode");
+        if (pageSel) { pageSel.value = "a4p"; state.pageSize = "a4p"; }
+        updateArtLabel();
+      }
+      else if (state.layout === 'vertical-full') {
           if (vOpt) vOpt.classList.remove("hidden");
           if (pageSel) { pageSel.value = "a3-full"; state.pageSize = "a3-full"; }
       } 
@@ -208,6 +232,57 @@ function setupControls() {
               pageSel.value="a4l"; state.pageSize="a4l"; 
           }
       }
+      renderCalendar();
+    });
+  }
+
+  // Artwork Upload & Management
+  const artInput = $("artImageInput");
+  const uploadArtBtn = $("uploadArtBtn");
+  const removeArtBtn = $("removeArtBtn");
+  const useSameArtToggle = $("useSameArtToggle");
+
+  if (uploadArtBtn && artInput) {
+    uploadArtBtn.addEventListener("click", () => artInput.click());
+
+    artInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = evt => {
+        const dataUrl = evt.target.result;
+        if (state.useSameArtForAllMonths) {
+          state.monthlyImages = Array(12).fill(dataUrl);
+        } else {
+          state.monthlyImages[state.month] = dataUrl;
+        }
+        renderCalendar();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (removeArtBtn) {
+    removeArtBtn.addEventListener("click", () => {
+      if (state.useSameArtForAllMonths) {
+        state.monthlyImages = Array(12).fill(null);
+      } else {
+        state.monthlyImages[state.month] = null;
+      }
+      if ($("artImageInput")) $("artImageInput").value = "";
+      renderCalendar();
+    });
+  }
+
+  if (useSameArtToggle) {
+    useSameArtToggle.addEventListener("change", e => {
+      state.useSameArtForAllMonths = e.target.checked;
+      const currentImg = state.monthlyImages[state.month];
+      if (state.useSameArtForAllMonths && currentImg) {
+        state.monthlyImages = Array(12).fill(currentImg);
+      }
+      updateArtLabel();
       renderCalendar();
     });
   }
@@ -443,9 +518,13 @@ function renderCalendar() {
 
     const wrapper = document.querySelector(".calendar-wrapper");
     if (wrapper) {
-      wrapper.classList.remove("binding-top", "binding-left");
+      wrapper.classList.remove("binding-top", "binding-left", "split-mode");
       const oldGuide = wrapper.querySelector(".punch-guide-container");
       if (oldGuide) oldGuide.remove();
+
+      if (state.layout === 'wall-split') {
+        wrapper.classList.add("split-mode");
+      }
 
       if (state.bindingEdge === 'top') {
         wrapper.classList.add("binding-top");
@@ -466,13 +545,32 @@ function renderCalendar() {
       }
     }
 
+    // If Wall-Calendar Split layout, inject the 50% Artwork Zone at the top
+    if (state.layout === 'wall-split') {
+      const currentImg = state.monthlyImages[state.month];
+      const artZone = document.createElement("div");
+      artZone.className = "art-display-zone" + (currentImg ? " has-photo" : "");
+
+      if (currentImg) {
+        const imgEl = document.createElement("img");
+        imgEl.src = currentImg;
+        artZone.appendChild(imgEl);
+      } else {
+        const phText = document.createElement("span");
+        phText.className = "art-placeholder-text";
+        phText.innerHTML = "🖼️ <b>Artwork & Photo Zone (Upper Page)</b><br>Upload an image or leave blank for a craft illustration area.";
+        artZone.appendChild(phText);
+      }
+      container.appendChild(artZone);
+    }
+
     const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     
     const tDiv = document.createElement("div");
     tDiv.style.fontFamily = state.fontFamily;
     tDiv.style.color = state.titleColor;
     tDiv.style.textAlign = "left"; 
-    tDiv.style.marginBottom = "20px";
+    tDiv.style.marginBottom = "14px";
     
     const h2 = document.createElement("h2");
     h2.textContent = `${monthNames[state.month]} ${state.year}`;
@@ -482,7 +580,7 @@ function renderCalendar() {
     tDiv.appendChild(h2);
     container.appendChild(tDiv);
 
-    if (state.layout === 'grid') renderGrid(container);
+    if (state.layout === 'grid' || state.layout === 'wall-split') renderGrid(container);
     else renderVertical(container);
 }
 
@@ -974,9 +1072,10 @@ async function exportBatchPDF() {
       
       state.month = m;
       if ($("monthSelect")) $("monthSelect").value = m;
+      updateArtLabel();
       renderCalendar();
 
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise(resolve => setTimeout(resolve, 200));
 
       const canvas = await renderCanvasForCurrentState();
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -993,6 +1092,7 @@ async function exportBatchPDF() {
   } finally {
     state.month = originalMonth;
     if ($("monthSelect")) $("monthSelect").value = originalMonth;
+    updateArtLabel();
     renderCalendar();
     if (downloadBtn) {
       downloadBtn.disabled = false;
