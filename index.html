@@ -29,7 +29,6 @@
     <div class="license-bar-inner">
         <span class="license-label">Have a license key?</span>
         <span id="licenseStatus" class="license-status hidden">ACTIVE</span>
-        <!-- Value is empty now -->
         <input id="licenseInput" type="text" placeholder="Enter your license key">
         <button id="activateLicenseBtn" class="tmm-btn tmm-btn-primary small">Activate</button>
         <button id="toggleKeyBtn" class="tmm-btn tmm-btn-blue small hidden">Hide Key</button>
@@ -65,33 +64,30 @@
                 </div>
             </section>
             
-<!-- DATE SELECTION -->
-        <section class="panel">
-            <h2>Date selection</h2>
-            <div class="two-col">
-                <label>
-                    Month
-                    <select id="monthSelect"></select>
-                </label>
-                <label>
-                    Year
-                    <select id="yearSelect"></select>
-                </label>
-            </div>
-            
-            <div class="setting-row">
-                <label>Week Starts On</label>
-                <div class="toggle-group" id="weekStartToggle">
-                    <button type="button" class="btn-toggle active" id="btnStartMon" data-start="monday">Mon</button>
-                    <button type="button" class="btn-toggle" id="btnStartSun" data-start="sunday">Sun</button>
+            <!-- DATE SELECTION -->
+            <section class="panel">
+                <h2>Date selection</h2>
+                <div class="two-col">
+                    <label>
+                        Month
+                        <select id="monthSelect"></select>
+                    </label>
+                    <label>
+                        Year
+                        <select id="yearSelect"></select>
+                    </label>
                 </div>
-            </div>
-        </section>
-    </div>
+                
+                <div class="setting-row">
+                    <label>Week Starts On</label>
+                    <div class="toggle-group" id="weekStartToggle">
+                        <button type="button" class="btn-toggle active" id="btnStartMon" data-start="monday">Mon</button>
+                        <button type="button" class="btn-toggle" id="btnStartSun" data-start="sunday">Sun</button>
+                    </div>
+                </div>
+            </section>
+        </div>
 
-    <!-- COLUMN 2: Typography & Custom Events -->
-    <div class="sidebar-col">
-            
         <!-- COLUMN 2: Typography & Custom Events -->
         <div class="sidebar-col">
             
@@ -243,13 +239,6 @@
 
                 <div class="divider"></div>
 
-                <label>Week starts on
-                    <select id="startDaySelect">
-                        <option value="1">Monday</option>
-                        <option value="0">Sunday</option>
-                    </select>
-                </label>
-
                 <div id="gridSpecificOptions">
                     <label>Date position
                         <select id="datePositionSelect">
@@ -259,16 +248,17 @@
                             <option value="bottom-right">Bottom right</option>
                         </select>
                     </label>
-                </div>
 
-                <div class="divider"></div>
-                <label>Header style
-                    <select id="headerStyleSelect">
-                        <option value="short">Mon, Tue...</option>
-                        <option value="medium">Mon., Tue...</option>
-                        <option value="long">Monday, Tuesday...</option>
-                    </select>
-                </label>
+                    <div class="divider"></div>
+
+                    <label>Header style
+                        <select id="headerStyleSelect">
+                            <option value="short">Mon, Tue...</option>
+                            <option value="medium">Mon., Tue...</option>
+                            <option value="long">Monday, Tuesday...</option>
+                        </select>
+                    </label>
+                </div>
             </section>
 
             <!-- EXPORT OPTIONS -->
