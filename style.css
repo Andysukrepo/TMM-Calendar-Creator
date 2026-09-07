@@ -186,8 +186,61 @@ label select, label input[type="text"], label input[type="date"], label input[ty
     width: 100%; max-width: 100%; background: #ffffff; border-radius: 12px;
     padding: 24px; border: 1px solid #e5e7eb; box-shadow: var(--shadow-soft);
 }
+.preview-header { margin-bottom: 16px; }
 .preview-header h2 { margin: 0; font-size: 18px; }
-.preview-header p { margin: 4px 0 20px; font-size: 14px; color: var(--text-muted); }
+.preview-header p { margin: 4px 0 12px; font-size: 13px; color: var(--text-muted); }
+
+/* 12-Month Quick Strip */
+.month-strip-bar {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.strip-btn {
+    border: none;
+    background: #ffffff;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 2px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.strip-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.strip-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+.strip-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: transparent;
+}
+
+.strip-btn.has-art .strip-dot {
+    background: #10b981;
+}
+
+.strip-btn.active.has-art .strip-dot {
+    background: #ffffff;
+}
 
 .calendar-wrapper {
     background: #ffffff; border-radius: 8px; padding: 24px;
