@@ -70,7 +70,11 @@ const state = {
   pageSize: "a4l", 
   fileFormat: "pdf",
   exportRange: "single",
-  includeBleed: false
+  includeBleed: false,
+
+  // Binding & Punch Guides
+  bindingEdge: "none",
+  showPunchGuide: false
 };
 
 function $(id) { return document.getElementById(id); }
@@ -250,6 +254,23 @@ function setupControls() {
   if ($("datePositionSelect")) $("datePositionSelect").addEventListener("change", e => { state.datePosition = e.target.value; renderCalendar(); });
   if ($("headerStyleSelect")) $("headerStyleSelect").addEventListener("change", e => { state.headerStyle = e.target.value; renderCalendar(); });
 
+  // Binding Margin & Punch Guides
+  const bindSel = $("bindingEdgeSelect");
+  if (bindSel) {
+    bindSel.addEventListener("change", e => {
+      state.bindingEdge = e.target.value;
+      renderCalendar();
+    });
+  }
+
+  const punchTog = $("showPunchGuideToggle");
+  if (punchTog) {
+    punchTog.addEventListener("change", e => {
+      state.showPunchGuide = e.target.checked;
+      renderCalendar();
+    });
+  }
+
   if ($("addCustomEventBtn")) {
     $("addCustomEventBtn").addEventListener("click", () => {
       const d = $("customEventDate").value;
@@ -337,6 +358,31 @@ function renderCalendar() {
     const container = $("calendarPreview");
     if(!container) return;
     container.innerHTML = "";
+
+    const wrapper = document.querySelector(".calendar-wrapper");
+    if (wrapper) {
+      wrapper.classList.remove("binding-top", "binding-left");
+      const oldGuide = wrapper.querySelector(".punch-guide-container");
+      if (oldGuide) oldGuide.remove();
+
+      if (state.bindingEdge === 'top') {
+        wrapper.classList.add("binding-top");
+      } else if (state.bindingEdge === 'left') {
+        wrapper.classList.add("binding-left");
+      }
+
+      if (state.showPunchGuide && state.bindingEdge !== 'none') {
+        const guide = document.createElement("div");
+        guide.className = `punch-guide-container punch-guide-${state.bindingEdge}`;
+        const count = state.bindingEdge === 'top' ? 24 : 18;
+        for (let i = 0; i < count; i++) {
+          const hole = document.createElement("span");
+          hole.className = "punch-hole";
+          guide.appendChild(hole);
+        }
+        wrapper.appendChild(guide);
+      }
+    }
 
     const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     
