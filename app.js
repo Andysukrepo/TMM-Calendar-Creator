@@ -155,6 +155,25 @@ function updateArtLabel() {
   lbl.textContent = state.useSameArtForAllMonths ? "All Months" : monthNames[state.month];
 }
 
+function updateArtDimensionHint() {
+  const hintEl = $("artDimHint");
+  if (!hintEl) return;
+
+  switch (state.pageSize) {
+    case 'a3p':
+    case 'a3-full':
+      hintEl.textContent = '3508 × 2480 px';
+      break;
+    case 'usl':
+      hintEl.textContent = '2550 × 1650 px';
+      break;
+    case 'a4p':
+    default:
+      hintEl.textContent = '2480 × 1754 px';
+      break;
+  }
+}
+
 function setupControls() {
   const monthSelect = $("monthSelect");
   const yearSelect = $("yearSelect");
@@ -213,6 +232,7 @@ function setupControls() {
         if (wrap) wrap.classList.add("split-mode");
         if (pageSel) { pageSel.value = "a4p"; state.pageSize = "a4p"; }
         updateArtLabel();
+        updateArtDimensionHint();
       }
       else if (state.layout === 'vertical-full') {
           if (vOpt) vOpt.classList.remove("hidden");
@@ -451,6 +471,7 @@ function setupControls() {
       state.pageSize = e.target.value;
       const customRow = $("customSizeRow");
       if (customRow) customRow.style.display = (state.pageSize === "custom") ? "grid" : "none";
+      updateArtDimensionHint();
     });
   }
 
