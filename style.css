@@ -436,11 +436,10 @@ label select, label input[type="text"], label input[type="date"], label input[ty
   padding: 24px !important;
 }
 
-/* 50% Top Artwork Zone */
+/* Proportional Top Artwork Zone (Exact 2480x1754 Aspect Ratio, No Crop) */
 .art-display-zone {
   width: 100%;
-  height: 320px;
-  min-height: 280px;
+  aspect-ratio: 2480 / 1754;
   border-radius: 8px;
   border: 2px dashed #cbd5e1;
   background-color: #f8fafc;
@@ -454,13 +453,13 @@ label select, label input[type="text"], label input[type="date"], label input[ty
 
 .art-display-zone.has-photo {
   border: 1px solid #e2e8f0;
-  background-color: transparent;
+  background-color: #ffffff;
 }
 
 .art-display-zone img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
