@@ -329,6 +329,7 @@ label select, label input[type="text"], label input[type="date"], label input[ty
 @media (max-width: 768px) {
     .tmm-sidebar { grid-template-columns: 1fr; }
 }
+
 /* Week Start Toggle Styles */
 .setting-row {
   margin-top: 12px;
@@ -370,6 +371,7 @@ label select, label input[type="text"], label input[type="date"], label input[ty
   border-color: #3b82f6;
   color: #ffffff;
 }
+
 /* Binding Offsets */
 .calendar-wrapper.binding-top {
   padding-top: 50px !important;
@@ -411,6 +413,7 @@ label select, label input[type="text"], label input[type="date"], label input[ty
   border: 1px dashed #ef4444;
   background-color: rgba(239, 68, 68, 0.12);
 }
+
 /* Week Number Column Styling */
 .calendar-table th.th-week-num,
 .calendar-table td.td-week-num {
@@ -422,4 +425,49 @@ label select, label input[type="text"], label input[type="date"], label input[ty
   color: #9ca3af;
   background-color: rgba(243, 244, 246, 0.6);
   user-select: none;
+}
+
+/* Wall Calendar Split Mode */
+.calendar-wrapper.split-mode {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  min-height: 720px !important;
+  padding: 24px !important;
+}
+
+/* 50% Top Artwork Zone */
+.art-display-zone {
+  width: 100%;
+  height: 320px;
+  min-height: 280px;
+  border-radius: 8px;
+  border: 2px dashed #cbd5e1;
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.art-display-zone.has-photo {
+  border: 1px solid #e2e8f0;
+  background-color: transparent;
+}
+
+.art-display-zone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.art-placeholder-text {
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  padding: 12px;
 }
