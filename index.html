@@ -177,6 +177,16 @@
                     </label>
                     <button id="addCustomEventBtn" class="tmm-btn tmm-btn-primary full-width small">Add</button>
                     <button id="clearCustomEventsBtn" class="tmm-btn tmm-btn-ghost full-width small" style="margin-top: 8px; color: #b91c1c; border-color: #fca5a5;">Clear All</button>
+                <div class="divider" style="margin: 10px 0;"></div>
+                
+                <div class="setting-row">
+                    <label>Bulk Import CSV</label>
+                    <input type="file" id="csvFileInput" accept=".csv, .txt" style="display: none;" />
+                    <button type="button" id="uploadCsvBtn" class="tmm-btn tmm-btn-ghost full-width small" style="border: 1px dashed #6b7280;">
+                        📁 Upload CSV / TXT
+                    </button>
+                    <span style="font-size: 11px; color: #9ca3af; margin-top: 4px;">Format: <code>2026-10-15, Grandma's Birthday</code></span>
+                </div>
                 </div>
                 <ul id="customEventList" class="event-list"></ul>
             </section>
