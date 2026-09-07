@@ -68,7 +68,8 @@ const state = {
   letterSpacing: 0,
   fontWeight: 400,
   pageSize: "a4l", 
-  fileFormat: "png",
+  fileFormat: "pdf",
+  exportRange: "single",
   includeBleed: false
 };
 
@@ -87,15 +88,17 @@ document.addEventListener("DOMContentLoaded", () => {
   checkSavedLicense();
   
   document.addEventListener('click', function(event) {
-    const isClickInside = $('fontSearchInput').contains(event.target) || $('fontSearchResults').contains(event.target);
-    if (!isClickInside) {
-      $('fontSearchResults').classList.add('hidden');
+    const sInp = $('fontSearchInput');
+    const sRes = $('fontSearchResults');
+    if (sInp && sRes && !sInp.contains(event.target) && !sRes.contains(event.target)) {
+      sRes.classList.add('hidden');
     }
   });
 });
 
 function renderHolidayControls() {
     const container = $("holidayListContainer");
+    if (!container) return;
     const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     
     monthNames.forEach((mName, mIdx) => {
@@ -141,82 +144,89 @@ function setupControls() {
   const yearSelect = $("yearSelect");
   const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   
-  monthNames.forEach((m, i) => {
-    const opt = document.createElement("option");
-    opt.value = i; opt.textContent = m;
-    monthSelect.appendChild(opt);
-  });
-
-  for (let y = state.year - 1; y <= state.year + 25; y++) {
-    const opt = document.createElement("option");
-    opt.value = y; opt.textContent = y;
-    yearSelect.appendChild(opt);
+  if (monthSelect) {
+    monthNames.forEach((m, i) => {
+      const opt = document.createElement("option");
+      opt.value = i; opt.textContent = m;
+      monthSelect.appendChild(opt);
+    });
+    monthSelect.value = state.month;
+    monthSelect.addEventListener("change", e => { 
+        state.month = parseInt(e.target.value); 
+        const accords = document.querySelectorAll("#holidayListContainer details");
+        accords.forEach((acc) => {
+            const sum = acc.querySelector("summary");
+            if(sum && sum.textContent === monthNames[state.month]) acc.open = true;
+            else acc.open = false;
+        });
+        renderCalendar(); 
+    });
   }
 
-  monthSelect.value = state.month;
-  yearSelect.value = state.year;
-
-  monthSelect.addEventListener("change", e => { 
-      state.month = parseInt(e.target.value); 
-      const accords = document.querySelectorAll("#holidayListContainer details");
-      accords.forEach((acc, i) => {
-          const sum = acc.querySelector("summary");
-          if(sum && sum.textContent === monthNames[state.month]) acc.open = true;
-          else acc.open = false;
-      });
-      renderCalendar(); 
-  });
-  yearSelect.addEventListener("change", e => { state.year = parseInt(e.target.value); renderCalendar(); });
-
-  $("layoutSelect").addEventListener("change", e => {
-    state.layout = e.target.value;
-    const vOpt = $("verticalOptions");
-    const gridPos = $("gridSpecificOptions");
-    const wrap = document.querySelector(".calendar-wrapper");
-    const pageSel = $("pageSizeSelect");
-
-    vOpt.classList.add("hidden");
-    gridPos.classList.add("hidden");
-    wrap.classList.remove("slim-mode");
-
-    if (state.layout === 'vertical-full') {
-        vOpt.classList.remove("hidden");
-        pageSel.value = "a3-full"; state.pageSize = "a3-full";
-    } 
-    else if (state.layout === 'vertical-a4') {
-        vOpt.classList.remove("hidden");
-        pageSel.value = "a4p"; state.pageSize = "a4p"; 
+  if (yearSelect) {
+    for (let y = state.year - 1; y <= state.year + 25; y++) {
+      const opt = document.createElement("option");
+      opt.value = y; opt.textContent = y;
+      yearSelect.appendChild(opt);
     }
-    else if (state.layout === 'vertical-slim') {
-        vOpt.classList.add("hidden");
-        wrap.classList.add("slim-mode");
-        pageSel.value = "a3-slim"; state.pageSize = "a3-slim";
-    } 
-    else {
-        gridPos.classList.remove("hidden");
-        if(state.pageSize.includes('a3-') || state.pageSize === 'a4p') { 
-            pageSel.value="a4l"; state.pageSize="a4l"; 
-        }
-    }
-    renderCalendar();
-  });
+    yearSelect.value = state.year;
+    yearSelect.addEventListener("change", e => { state.year = parseInt(e.target.value); renderCalendar(); });
+  }
 
-  $("colCountSelect").addEventListener("change", e => {
-      state.colCount = parseInt(e.target.value);
-      renderCalendar();
-  });
+  if ($("layoutSelect")) {
+    $("layoutSelect").addEventListener("change", e => {
+      state.layout = e.target.value;
+      const vOpt = $("verticalOptions");
+      const gridPos = $("gridSpecificOptions");
+      const wrap = document.querySelector(".calendar-wrapper");
+      const pageSel = $("pageSizeSelect");
 
-  $("columnNamesInput").addEventListener("input", e => {
-      state.columnNames = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
+      if (vOpt) vOpt.classList.add("hidden");
+      if (gridPos) gridPos.classList.add("hidden");
+      if (wrap) wrap.classList.remove("slim-mode");
+
+      if (state.layout === 'vertical-full') {
+          if (vOpt) vOpt.classList.remove("hidden");
+          if (pageSel) { pageSel.value = "a3-full"; state.pageSize = "a3-full"; }
+      } 
+      else if (state.layout === 'vertical-a4') {
+          if (vOpt) vOpt.classList.remove("hidden");
+          if (pageSel) { pageSel.value = "a4p"; state.pageSize = "a4p"; }
+      } 
+      else if (state.layout === 'vertical-slim') {
+          if (wrap) wrap.classList.add("slim-mode");
+          if (pageSel) { pageSel.value = "a3-slim"; state.pageSize = "a3-slim"; }
+      } 
+      else {
+          if (gridPos) gridPos.classList.remove("hidden");
+          if(pageSel && (state.pageSize.includes('a3-') || state.pageSize === 'a4p')) { 
+              pageSel.value="a4l"; state.pageSize="a4l"; 
+          }
+      }
       renderCalendar();
-  });
+    });
+  }
+
+  if ($("colCountSelect")) {
+    $("colCountSelect").addEventListener("change", e => {
+        state.colCount = parseInt(e.target.value);
+        renderCalendar();
+    });
+  }
+
+  if ($("columnNamesInput")) {
+    $("columnNamesInput").addEventListener("input", e => {
+        state.columnNames = e.target.value.split(",").map(s => s.trim()).filter(Boolean);
+        renderCalendar();
+    });
+  }
 
   // Styles Inputs
-  $("borderWidthInput").addEventListener("input", e => { state.borderWidth = e.target.value; renderCalendar(); });
-  $("borderColorInput").addEventListener("input", e => { state.borderColor = e.target.value; renderCalendar(); });
-  $("transparentBgToggle").addEventListener("change", e => { state.transparentBg = e.target.checked; });
-  $("showGridLinesToggle").addEventListener("change", e => { state.showGridLines = e.target.checked; renderCalendar(); });
-  $("moonPhasesToggle").addEventListener("change", e => { state.moonPhasesOn = e.target.checked; renderCalendar(); });
+  if ($("borderWidthInput")) $("borderWidthInput").addEventListener("input", e => { state.borderWidth = e.target.value; renderCalendar(); });
+  if ($("borderColorInput")) $("borderColorInput").addEventListener("input", e => { state.borderColor = e.target.value; renderCalendar(); });
+  if ($("transparentBgToggle")) $("transparentBgToggle").addEventListener("change", e => { state.transparentBg = e.target.checked; });
+  if ($("showGridLinesToggle")) $("showGridLinesToggle").addEventListener("change", e => { state.showGridLines = e.target.checked; renderCalendar(); });
+  if ($("moonPhasesToggle")) $("moonPhasesToggle").addEventListener("change", e => { state.moonPhasesOn = e.target.checked; renderCalendar(); });
 
   const btnMon = $("btnStartMon");
   const btnSun = $("btnStartSun");
@@ -236,59 +246,91 @@ function setupControls() {
       renderCalendar();
     });
   }
-  $("datePositionSelect").addEventListener("change", e => { state.datePosition = e.target.value; renderCalendar(); });
-  $("headerStyleSelect").addEventListener("change", e => { state.headerStyle = e.target.value; renderCalendar(); });
 
-  $("addCustomEventBtn").addEventListener("click", () => {
-    const d = $("customEventDate").value;
-    const l = $("customEventLabel").value.trim();
-    if (!d || !l) return;
-    state.customEvents.push({ date: d, label: l });
-    $("customEventDate").value = ""; $("customEventLabel").value = "";
-    renderCustomEventsList(); renderCalendar();
-  });
-  $("clearCustomEventsBtn").addEventListener("click", () => {
-      state.customEvents = []; renderCustomEventsList(); renderCalendar();
-  });
+  if ($("datePositionSelect")) $("datePositionSelect").addEventListener("change", e => { state.datePosition = e.target.value; renderCalendar(); });
+  if ($("headerStyleSelect")) $("headerStyleSelect").addEventListener("change", e => { state.headerStyle = e.target.value; renderCalendar(); });
+
+  if ($("addCustomEventBtn")) {
+    $("addCustomEventBtn").addEventListener("click", () => {
+      const d = $("customEventDate").value;
+      const l = $("customEventLabel").value.trim();
+      if (!d || !l) return;
+      state.customEvents.push({ date: d, label: l });
+      $("customEventDate").value = ""; $("customEventLabel").value = "";
+      renderCustomEventsList(); renderCalendar();
+    });
+  }
+  if ($("clearCustomEventsBtn")) {
+    $("clearCustomEventsBtn").addEventListener("click", () => {
+        state.customEvents = []; renderCustomEventsList(); renderCalendar();
+    });
+  }
 
   setupFontSearch();
   
   // Colors
-  $("titleColorInput").addEventListener("input", e => { state.titleColor = e.target.value; renderCalendar(); });
-  $("dateColorInput").addEventListener("input", e => { state.dateColor = e.target.value; renderCalendar(); });
-  $("weekdayColorInput").addEventListener("input", e => { state.weekdayColor = e.target.value; renderCalendar(); });
-  $("weekendHeaderColorInput").addEventListener("input", e => { state.weekendHeaderColor = e.target.value; renderCalendar(); });
+  if ($("titleColorInput")) $("titleColorInput").addEventListener("input", e => { state.titleColor = e.target.value; renderCalendar(); });
+  if ($("dateColorInput")) $("dateColorInput").addEventListener("input", e => { state.dateColor = e.target.value; renderCalendar(); });
+  if ($("weekdayColorInput")) $("weekdayColorInput").addEventListener("input", e => { state.weekdayColor = e.target.value; renderCalendar(); });
+  if ($("weekendHeaderColorInput")) $("weekendHeaderColorInput").addEventListener("input", e => { state.weekendHeaderColor = e.target.value; renderCalendar(); });
 
-  $("fontWeightSelect").addEventListener("change", e => { state.fontWeight = parseInt(e.target.value); renderCalendar(); });
+  if ($("fontWeightSelect")) $("fontWeightSelect").addEventListener("change", e => { state.fontWeight = parseInt(e.target.value); renderCalendar(); });
 
-  $("pageSizeSelect").addEventListener("change", e => {
-    state.pageSize = e.target.value;
-    $("customSizeRow").style.display = (state.pageSize === "custom") ? "grid" : "none";
-  });
-  $("fileFormatSelect").addEventListener("change", e => { state.fileFormat = e.target.value; });
-  $("bleedToggle").addEventListener("change", e => { state.includeBleed = e.target.checked; });
-  
-  $("downloadBtn").addEventListener("click", () => {
-    if(!isPro) return alert("Please activate PRO mode first.");
-    handleDownload();
-  });
+  if ($("pageSizeSelect")) {
+    $("pageSizeSelect").addEventListener("change", e => {
+      state.pageSize = e.target.value;
+      const customRow = $("customSizeRow");
+      if (customRow) customRow.style.display = (state.pageSize === "custom") ? "grid" : "none";
+    });
+  }
 
-  $("activateLicenseBtn").addEventListener("click", () => {
-      const k = $("licenseInput").value.trim();
-      if(k) activateLicense(k);
-  });
-  
-  $("toggleKeyBtn").addEventListener("click", () => {
-      const input = $("licenseInput");
-      const btn = $("toggleKeyBtn");
-      if(input.type === "text") {
-          input.type = "password";
-          btn.textContent = "Show Key";
-      } else {
-          input.type = "text";
-          btn.textContent = "Hide Key";
+  const formatSel = $("fileFormatSelect");
+  const rangeRow = $("exportRangeRow");
+  if (formatSel) {
+    formatSel.addEventListener("change", e => { 
+      state.fileFormat = e.target.value;
+      if (rangeRow) {
+        rangeRow.style.display = (e.target.value === 'pdf') ? 'block' : 'none';
       }
-  });
+    });
+  }
+
+  const rangeSel = $("exportRangeSelect");
+  if (rangeSel) {
+    rangeSel.addEventListener("change", e => {
+      state.exportRange = e.target.value;
+    });
+  }
+
+  if ($("bleedToggle")) $("bleedToggle").addEventListener("change", e => { state.includeBleed = e.target.checked; });
+  
+  if ($("downloadBtn")) {
+    $("downloadBtn").addEventListener("click", () => {
+      if(!isPro) return alert("Please activate PRO mode first.");
+      handleDownload();
+    });
+  }
+
+  if ($("activateLicenseBtn")) {
+    $("activateLicenseBtn").addEventListener("click", () => {
+        const k = $("licenseInput").value.trim();
+        if(k) activateLicense(k);
+    });
+  }
+  
+  if ($("toggleKeyBtn")) {
+    $("toggleKeyBtn").addEventListener("click", () => {
+        const input = $("licenseInput");
+        const btn = $("toggleKeyBtn");
+        if(input.type === "text") {
+            input.type = "password";
+            btn.textContent = "Show Key";
+        } else {
+            input.type = "text";
+            btn.textContent = "Hide Key";
+        }
+    });
+  }
 }
 
 function renderCalendar() {
@@ -337,7 +379,6 @@ function renderGrid(container) {
             th.textContent = h;
             th.style.border = borderStyle;
             th.style.fontWeight = state.fontWeight;
-            // Apply selected colors
             if(weekendIndices.includes(i)) {
                 th.style.color = state.weekendHeaderColor;
             } else {
@@ -480,7 +521,6 @@ function renderVertical(container) {
             if(sym) moonHTML = `<span style="font-size:14px; margin-left:6px;">${sym}</span>`;
         }
 
-        // Apply Day Color based on Weekend status
         const dayColor = isWknd ? state.weekendHeaderColor : state.weekdayColor;
 
         td1.innerHTML = `<div class="vertical-cell-container">
@@ -540,9 +580,6 @@ function getMoonSymbol(d, map) {
     if(d===map.last) return '<span class="moon-circle moon-last"></span>';
     return null;
 }
-
-// ... EVENT CALCULATORS (getEventsForDate, getEaster, etc. - unchanged) ...
-// (Including full helper blocks to ensure file is complete)
 
 function getEventsForDate(dateObj, iso) {
   const events = [];
@@ -615,8 +652,6 @@ function computeMoonPhaseDays(year, month) {
     return res;
 }
 
-// ... FONT SEARCH & EXPORT HANDLERS ... (Including setupFontSearch, applyFont, renderCustomEventsList)
-
 // Popular fonts for quick selection
 const popularFontsByCategory = {
   "sans-serif": ["Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Inter", "Raleway", "Ubuntu", "Work Sans", "Fira Sans", "Quicksand", "Archivo"],
@@ -668,7 +703,6 @@ function setupFontSearch() {
 
   let currentCategory = "sans-serif";
 
-  // Populate quick select with initial fonts
   function populateQuickSelect(category) {
     quickSelect.innerHTML = '<option value="">Choose a popular font...</option>';
     const fonts = popularFontsByCategory[category] || [];
@@ -680,10 +714,8 @@ function setupFontSearch() {
     });
   }
 
-  // Initialize with sans-serif fonts
   populateQuickSelect(currentCategory);
 
-  // Handle font style category change
   styleSelect.addEventListener("change", e => {
     currentCategory = e.target.value;
     populateQuickSelect(currentCategory);
@@ -691,7 +723,6 @@ function setupFontSearch() {
     box.classList.add("hidden");
   });
 
-  // Handle quick select font change
   quickSelect.addEventListener("change", e => {
     if(e.target.value) {
       applyFont(e.target.value);
@@ -705,17 +736,14 @@ function setupFontSearch() {
       
       if(!val) { box.classList.add("hidden"); return; }
 
-      // Get fonts from selected category
       const fontsToSearch = googleFontsByCategory[currentCategory] || [];
 
-      // Add "Use font as typed" option
       const useDiv = document.createElement("div"); 
       useDiv.className = "font-result-use"; 
       useDiv.textContent = `Use font: "${e.target.value}"`;
       useDiv.onclick = () => { applyFont(e.target.value); box.classList.add("hidden"); };
       box.appendChild(useDiv);
 
-      // Filter and show matching fonts
       fontsToSearch.filter(f => f.toLowerCase().includes(val)).forEach(f => {
           const div = document.createElement("div"); 
           div.textContent = f;
@@ -726,6 +754,7 @@ function setupFontSearch() {
       box.classList.remove("hidden");
   });
 }
+
 function applyFont(name) {
     const link = document.createElement("link");
     link.href = `https://fonts.googleapis.com/css2?family=${name.replace(/\s+/g,'+')}:wght@300;400;600;700&display=swap`;
@@ -733,8 +762,11 @@ function applyFont(name) {
     state.fontFamily = `"${name}", sans-serif`;
     renderCalendar();
 }
+
 function renderCustomEventsList() {
-    const ul = $("customEventList"); ul.innerHTML = "";
+    const ul = $("customEventList"); 
+    if(!ul) return;
+    ul.innerHTML = "";
     state.customEvents.forEach((ev, i) => {
         const li = document.createElement("li"); li.innerHTML = `<span>${ev.date}: ${ev.label}</span>`;
         const btn = document.createElement("button"); btn.textContent = "x";
@@ -743,23 +775,111 @@ function renderCustomEventsList() {
     });
 }
 
-function handleDownload() {
-    if(state.fileFormat.includes('svg')) {
-        if(state.layout.includes('vertical')) exportVerticalSVG(state.fileFormat === 'svg-styled');
-        else exportGridSVG(state.fileFormat === 'svg-styled');
-        return;
-    }
-    const el = document.querySelector(".calendar-wrapper");
-    const originalBg = el.style.backgroundColor;
-    if(state.transparentBg) el.style.backgroundColor = "transparent";
-    html2canvas(el, {scale:3, backgroundColor: state.transparentBg ? null : "#ffffff"}).then(c => {
-        el.style.backgroundColor = originalBg; 
-        const a = document.createElement('a'); a.download = `calendar-${state.year}-${state.month+1}.png`;
-        a.href = c.toDataURL("image/png"); a.click();
-    });
+// --- EXPORT HANDLING ---
+
+function getPDFOrientationAndFormat() {
+  const isLandscape = !state.pageSize.endsWith('p');
+  let format = 'a4';
+  if (state.pageSize.startsWith('a3')) format = 'a3';
+  if (state.pageSize.startsWith('us')) format = 'letter';
+  return { orientation: isLandscape ? 'landscape' : 'portrait', format };
 }
 
-// ... SVG EXPORT FUNCTIONS (Updated with colors) ...
+async function renderCanvasForCurrentState() {
+  const el = document.querySelector(".calendar-wrapper");
+  return await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
+}
+
+async function exportSinglePDF() {
+  const { jsPDF } = window.jspdf;
+  const { orientation, format } = getPDFOrientationAndFormat();
+  const pdf = new jsPDF({ orientation, unit: 'mm', format });
+
+  const canvas = await renderCanvasForCurrentState();
+  const imgData = canvas.toDataURL('image/jpeg', 0.98);
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+  pdf.save(`calendar-${state.year}-${state.month + 1}.pdf`);
+}
+
+async function exportBatchPDF() {
+  const { jsPDF } = window.jspdf;
+  const { orientation, format } = getPDFOrientationAndFormat();
+  const pdf = new jsPDF({ orientation, unit: 'mm', format });
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  const originalMonth = state.month;
+  const downloadBtn = $("downloadBtn");
+  const originalText = downloadBtn ? downloadBtn.textContent : "Download calendar";
+  if (downloadBtn) downloadBtn.disabled = true;
+
+  try {
+    for (let m = 0; m < 12; m++) {
+      if (downloadBtn) downloadBtn.textContent = `Generating ${m + 1} of 12...`;
+      
+      state.month = m;
+      if ($("monthSelect")) $("monthSelect").value = m;
+      renderCalendar();
+
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      const canvas = await renderCanvasForCurrentState();
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      if (m > 0) pdf.addPage(format, orientation);
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    }
+
+    if (downloadBtn) downloadBtn.textContent = "Saving PDF...";
+    pdf.save(`calendar-${state.year}-full-year.pdf`);
+  } catch (err) {
+    console.error("Batch PDF error:", err);
+    alert("Error generating full year PDF. Please check the browser console.");
+  } finally {
+    state.month = originalMonth;
+    if ($("monthSelect")) $("monthSelect").value = originalMonth;
+    renderCalendar();
+    if (downloadBtn) {
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = originalText;
+    }
+  }
+}
+
+async function handleDownload() {
+  const formatSelect = $("fileFormatSelect");
+  const rangeSelect = $("exportRangeSelect");
+  const fileFormat = formatSelect ? formatSelect.value : state.fileFormat;
+  const exportRange = rangeSelect ? rangeSelect.value : state.exportRange;
+
+  if (fileFormat === 'pdf') {
+    if (exportRange === 'full-year') {
+      await exportBatchPDF();
+    } else {
+      await exportSinglePDF();
+    }
+    return;
+  }
+
+  if (fileFormat.includes('svg')) {
+    if (state.layout.includes('vertical')) exportVerticalSVG(fileFormat === 'svg-styled');
+    else exportGridSVG(fileFormat === 'svg-styled');
+    return;
+  }
+
+  // PNG Export
+  const el = document.querySelector(".calendar-wrapper");
+  const originalBg = el.style.backgroundColor;
+  if(state.transparentBg) el.style.backgroundColor = "transparent";
+  html2canvas(el, {scale:3, backgroundColor: state.transparentBg ? null : "#ffffff"}).then(c => {
+      el.style.backgroundColor = originalBg; 
+      const a = document.createElement('a'); a.download = `calendar-${state.year}-${state.month+1}.png`;
+      a.href = c.toDataURL("image/png"); a.click();
+  });
+}
 
 function exportVerticalSVG(styled) {
     const isSlim = state.layout === 'vertical-slim';
@@ -827,10 +947,8 @@ function exportVerticalSVG(styled) {
         const textFS = isA4 ? 24 : 30;
         const moonFS = isA4 ? 32 : 40;
 
-        // Date Number
         svg += `<text x="${margin + 20}" y="${dateTextY}" font-family="${state.fontFamily.replace(/"/g,"'")}" font-size="${dateFS}" font-weight="bold" fill="${isWknd?'#be123c':'#111827'}">${d}</text>`;
         
-        // Day Name (Using specific colors)
         const dColor = isWknd ? state.weekendHeaderColor : state.weekdayColor;
         svg += `<text x="${margin + (isA4?80:90)}" y="${dateTextY}" font-family="sans-serif" font-size="${dayFS}" fill="${dColor}">${dayName}</text>`;
 
@@ -999,10 +1117,8 @@ async function activateLicense(k, silent) {
             $("toggleKeyBtn").classList.remove("hidden"); 
             $("licenseInput").type = "password"; 
             
-            // Show green ACTIVE badge
             if(statusBadge) statusBadge.classList.remove("hidden");
             
-            // Show permanent success message next to show/hide button
             msg.textContent="✓ License Activated Successfully!"; 
             msg.className="license-message success";
             
@@ -1027,8 +1143,7 @@ async function activateLicense(k, silent) {
     }
 }
 function updateModeUI() {
-    // Some UI elements are optional depending on the HTML template.
-    const badge = $("modeBadge");        // may not exist
+    const badge = $("modeBadge");
     const watermark = $("demoWatermark");
     const downloadBtn = $("downloadBtn");
     const hint = $("downloadHint");
@@ -1039,7 +1154,7 @@ function updateModeUI() {
         if (watermark) watermark.classList.add("hidden");
         if (hint) { 
             hint.textContent = "PRO Active. Ready to download.";
-            hint.style.color = "#16a34a"; // Green color
+            hint.style.color = "#16a34a";
             hint.style.fontWeight = "600";
         }
     } else {
@@ -1048,9 +1163,8 @@ function updateModeUI() {
         if (watermark) watermark.classList.remove("hidden");
         if (hint) { 
             hint.textContent = "Downloads disabled in DEMO MODE.";
-            hint.style.color = ""; // Reset to default
+            hint.style.color = "";
             hint.style.fontWeight = "";
         }
     }
 }
-
