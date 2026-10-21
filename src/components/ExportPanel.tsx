@@ -131,24 +131,26 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({
         </label>
       )}
 
-      <div className="toggle-row small" style={{ marginTop: 8 }}>
-        <input
-          id="transparentBgToggle"
-          type="checkbox"
-          checked={transparentBg}
-          onChange={(e) => onTransparentBgChange(e.target.checked)}
-        />
-        <span>Transparent Background</span>
-      </div>
+      <div className="export-toggles-container">
+        <div className="toggle-row small">
+          <input
+            id="transparentBgToggle"
+            type="checkbox"
+            checked={transparentBg}
+            onChange={(e) => onTransparentBgChange(e.target.checked)}
+          />
+          <span>Transparent Background</span>
+        </div>
 
-      <div className="toggle-row small">
-        <input
-          id="bleedToggle"
-          type="checkbox"
-          checked={includeBleed}
-          onChange={(e) => onIncludeBleedChange(e.target.checked)}
-        />
-        <span>Include 3mm bleed</span>
+        <div className="toggle-row small">
+          <input
+            id="bleedToggle"
+            type="checkbox"
+            checked={includeBleed}
+            onChange={(e) => onIncludeBleedChange(e.target.checked)}
+          />
+          <span>Include 3mm bleed</span>
+        </div>
       </div>
 
       {isPro ? (

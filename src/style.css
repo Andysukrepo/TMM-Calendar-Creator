@@ -717,6 +717,14 @@ label select:focus, label input:focus {
     cursor: pointer;
 }
 
+.export-toggles-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+    margin-bottom: 18px;
+}
+
 .checkbox-row {
     display: flex;
     align-items: center;
