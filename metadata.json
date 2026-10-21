@@ -1,0 +1,8 @@
+{
+  "name": "TMM Calendar Creator",
+  "description": "Create monthly printable and digital calendars with custom typography, artwork splits, UK holidays, moon phases, and high-res PDF/PNG/SVG exports.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
