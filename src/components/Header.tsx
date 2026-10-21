@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
           />
         </div>
         <div>
-          <h1>TMM Calendar Creator</h1>
+          <h1>Calendar Creator by This Man Makes</h1>
           <p className="subtitle">
             Create monthly printable &amp; digital calendars
           </p>
